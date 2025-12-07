@@ -120,11 +120,11 @@ export default function Modal() {
 
   return (
     <Drawer
-      direction="right"
+      // direction="right"
       open={open}
       onOpenChange={(value) => handleCloseDrawer(value)}
     >
-      <DrawerContent className="overflow-y-auto overflow-x-hidden outline-none ">
+      <DrawerContent className=" outline-none ">
         <DrawerHeader className="sr-only">
           <DrawerTitle></DrawerTitle>
           <DrawerDescription></DrawerDescription>
@@ -161,7 +161,7 @@ export default function Modal() {
                     }
                     alt={data.title ?? data.name}
                     fill
-                    className="object-cover"
+                    className="object-cover bg-background"
                     quality={75}
                   />
                 )}
@@ -169,7 +169,7 @@ export default function Modal() {
                 <div className="absolute inset-0 bg-linear-to-t from-background via-background/30 to-background/90" />
                 <div className="absolute inset-0 bg-linear-to-bl from-transparent via-transparent  to-background" />
                 {data?.genres && (
-                  <div className="absolute top-8 left-8 flex gap-6 items-center">
+                  <div className="absolute top-8 lg:left-8 left-2 flex lg:gap-6 gap-3 items-center">
                     <Genres genres={data?.genres} />
                   </div>
                 )}
@@ -223,17 +223,17 @@ export default function Modal() {
                 )}
               </div>
 
-              <div className="relative p-8 mt-30 space-y-12">
+              <div className="relative lg:p-8 p-2 mt-30 lg:space-y-12 space-y-8">
                 <div className="space-y-6">
                   {data?.tagline && (
-                    <p className="text-lg font-light text-zinc-300 italic leading-relaxed max-w-2xl">
+                    <p className="lg:text-lg text-sm font-light text-zinc-300 italic leading-relaxed lg:max-w-2xl max-w-2xs ">
                       {data.tagline}
                     </p>
                   )}
                   {logo ? (
-                    <div className=" max-w-sm ">
+                    <div className=" lg:max-w-sm max-w-3xs ">
                       <img
-                        className="w-full h-full max-h-40 object-left object-contain"
+                        className="w-full h-full lg:max-h-40 max-h-20 object-left object-contain"
                         src={`${IMAGE_BASE_URL}/w780${logo}}`}
                         alt=""
                       />
@@ -259,7 +259,7 @@ export default function Modal() {
                   >
                     <Plus />
                   </Button>
-                  {data.seasons && data.seasons.length !== 0 && (
+                  {/* {data.seasons && data.seasons.length !== 0 && (
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -271,7 +271,7 @@ export default function Modal() {
                     >
                       <GalleryVerticalEndIcon /> Episodes
                     </Button>
-                  )}
+                  )} */}
 
                   {recommendations.length !== 0 && (
                     <Button
@@ -289,7 +289,7 @@ export default function Modal() {
                 </div>
                 <div className="space-y-4">
                   <div className="h-px w-16 bg-zinc-700 " />
-                  <div className="flex items-center gap-6 mb-8">
+                  <div className="flex items-center lg:gap-6 gap-3 text-sm lg:text-base mb-8">
                     {(data?.vote_average ?? 0) > 0 && (
                       <>
                         <div className="flex items-center gap-2">
@@ -325,7 +325,7 @@ export default function Modal() {
                     </div>
                   </div>
                   {data?.overview && (
-                    <p className="text-base leading-loose text-muted-foreground max-w-2xl">
+                    <p className="lg:text-base text-sm leading-loose text-muted-foreground lg:max-w-2xl">
                       {data.overview}
                     </p>
                   )}
@@ -338,11 +338,11 @@ export default function Modal() {
                   </div>
                 )}
                 <Separator />
-                {recommendations.length !== 0 && (
+                {/* {recommendations.length !== 0 && (
                   <div ref={similarRef}>
                     <Recommendations recommendations={recommendations} />
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           )}

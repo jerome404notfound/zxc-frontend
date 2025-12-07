@@ -5,6 +5,7 @@ import { CastMemberTypes } from "@/types/movie-by-id";
 export default function Credits({ credits }: { credits: CastMemberTypes[] }) {
   const limit = 6;
   const visible = credits.slice(0, limit);
+
   const remaining = credits.length - limit;
   return (
     <div className="space-y-4">
@@ -15,7 +16,7 @@ export default function Credits({ credits }: { credits: CastMemberTypes[] }) {
             key={meow.id}
             className="*:data-[slot=avatar]:ring-background  space-y-2 *:data-[slot=avatar]:ring-3 items-center "
           >
-            <Avatar key={meow.id} className="size-25">
+            <Avatar key={meow.id} className="lg:size-25 size-15">
               <AvatarImage
                 className="object-cover"
                 src={
@@ -38,8 +39,8 @@ export default function Credits({ credits }: { credits: CastMemberTypes[] }) {
 
         {remaining > 0 && (
           <div className="*:data-[slot=avatar]:ring-background *:data-[slot=avatar]:ring-3 items-center">
-            <Avatar className="size-25">
-              <AvatarFallback className="uppercase">
+            <Avatar className="lg:size-25 size-15">
+              <AvatarFallback className="uppercase lg:text-base text-sm">
                 +{remaining}
               </AvatarFallback>
             </Avatar>

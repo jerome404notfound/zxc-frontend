@@ -18,7 +18,7 @@ export default function Home() {
       <LandingPage />
 
       <AnimatePresence mode="wait">
-        {isSearching && (
+        {isSearching ? (
           <motion.div
             key="search"
             initial={{ opacity: 0 }}
@@ -40,11 +40,11 @@ export default function Home() {
           >
             <SearchResult />
           </motion.div>
+        ) : (
+          <ContentState />
         )}
       </AnimatePresence>
-      <div className={isSearching ? "hidden" : "block"}>
-        <ContentState />
-      </div>
+
       <ScrollToTop />
     </div>
   );
