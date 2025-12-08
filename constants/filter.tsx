@@ -456,18 +456,22 @@ export const tvNetworks = [
 ];
 
 export const keywordTopics = [
+  { label: "Horror", value: "315058" },
+  { label: "Survival", value: "10349" },
+  { label: "South Korea", value: "261681" },
   { label: "Zombie", value: "12377" },
+  { label: "Artificial Intelligence", value: "310" },
   { label: "Vampire", value: "3133" },
+  { label: "Future", value: "2964" },
+  { label: "Based on Novel/Book", value: "818" },
   { label: "Anime", value: "210024" },
   { label: "Ghost", value: "9839" },
   { label: "War", value: "1956" },
   { label: "Disaster", value: "189411" },
   { label: "Time-loop", value: "10854" },
-  { label: "Dinosaur", value: "12616" },
   { label: "Sequel", value: "9663" },
-  { label: "Superhero", value: "9715" },
+  { label: "Action-Comedy", value: "247799" },
   { label: "18+", value: "267122" },
-  { label: "Survival", value: "10349" },
   { label: "Horrified", value: "325825", icon: CloudMoon },
 ];
 

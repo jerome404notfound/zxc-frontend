@@ -1,5 +1,8 @@
 import {
+  IconCarambolaFilled,
   IconCategoryPlus,
+  IconFlame,
+  IconFlameFilled,
   IconFolderCode,
   IconGhost2Filled,
   IconMovie,
@@ -52,6 +55,7 @@ import useGetReusableData from "@/api/get-reusable-data";
 import { ApiTypes } from "@/types/api-types";
 import MovieCard from "../movie-card";
 import {
+  keywordTopics,
   movieGenres,
   productionCompanies,
   tvGenres,
@@ -70,10 +74,20 @@ export default function Discover() {
   );
   const [expandYear, setExpandYear] = useState(false);
   const [expandGenre, setExpandGenre] = useState(false);
+  const [expandLanguage, setExpandLanguage] = useState(false);
+  const [expandKeyword, setExpandKeyword] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [toValue, settoValue] = useState<number | null>(null);
   const [fromValue, setfromValue] = useState<number | null>(null);
+  const [minRating, setMinRating] = useState<number | null>(null);
+  const [maxRating, setMaxRating] = useState<number | null>(null);
   const [yearType, setYearType] = useState(true);
+  const CURRENT_YEAR = new Date().getFullYear();
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [selectedKeywords, setSelectedKeywords] = useState<Set<string>>(
+    new Set()
+  );
+  const [selectedSort, setSelectedSort] = useState<string | null>(null);
   const toggleGenre = (id: number) => {
     setSelectedGenres((prev) => {
       const newSet = new Set(prev);
@@ -85,6 +99,7 @@ export default function Discover() {
       return newSet;
     });
   };
+
   const toggleNetwork = (id: number) => {
     setSelectedNetwork((prev) => {
       const newSet = new Set(prev);
@@ -96,14 +111,26 @@ export default function Discover() {
       return newSet;
     });
   };
-
+  const toggleKeywords = (lang: string) => {
+    setSelectedKeywords((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(lang)) newSet.delete(lang);
+      else newSet.add(lang);
+      return newSet;
+    });
+  };
+  console.log("fromValue", fromValue);
   const query = useGetReusableData<ApiTypes>({
     endpoint:
       selectedGenres.size === 0 &&
       selectedNetwork.size === 0 &&
       selectedYear === null &&
       toValue === null &&
-      fromValue === null
+      fromValue === null &&
+      minRating === null &&
+      maxRating === null &&
+      selectedLanguage === null &&
+      selectedKeywords.size === 0
         ? `trending/${selectedMedia}/day`
         : `discover/${selectedMedia}`,
     params: {
@@ -114,8 +141,9 @@ export default function Discover() {
         with_genres: [...selectedGenres].join(","),
       }),
 
-      ...(yearType === false && selectedYear != null
-        ? selectedMedia === "tv"
+      ...(!yearType &&
+        selectedYear != null &&
+        (selectedMedia === "tv"
           ? {
               "first_air_date.gte": `${selectedYear}-01-01`,
               "first_air_date.lte": `${selectedYear}-12-31`,
@@ -123,51 +151,81 @@ export default function Discover() {
           : {
               "primary_release_date.gte": `${selectedYear}-01-01`,
               "primary_release_date.lte": `${selectedYear}-12-31`,
-            }
-        : yearType === true && fromValue != null && toValue != null
-        ? selectedMedia === "tv"
-          ? {
-              "first_air_date.gte": `${toValue}-01-01`,
-              "first_air_date.lte": `${fromValue}-12-31`,
-            }
-          : {
-              "primary_release_date.gte": `${toValue}-01-01`,
-              "primary_release_date.lte": `${fromValue}-12-31`,
-            }
-        : {}), // default empty object if no year filter
+            })),
+
+      ...(yearType === true &&
+        toValue != null &&
+        (selectedMedia === "tv"
+          ? { "first_air_date.gte": `${toValue}-01-01` }
+          : { "primary_release_date.gte": `${toValue}-01-01` })),
+
+      ...(yearType === true &&
+        fromValue != null &&
+        (selectedMedia === "tv"
+          ? { "first_air_date.lte": `${fromValue}-12-31` }
+          : { "primary_release_date.lte": `${fromValue}-12-31` })),
+
+      ...(minRating != null && {
+        "vote_average.gte": minRating,
+      }),
+
+      ...(maxRating != null && {
+        "vote_average.lte": maxRating,
+      }),
 
       ...(selectedNetwork.size > 0 &&
         (selectedMedia === "tv"
           ? { with_networks: [...selectedNetwork].join(",") }
           : { with_companies: [...selectedNetwork].join(",") })),
+
+      ...(selectedLanguage && { with_original_language: selectedLanguage }),
+      ...(selectedSort && { sort_by: selectedSort }),
+      ...(selectedKeywords.size > 0 && {
+        with_keywords: [...selectedKeywords].join(","),
+      }),
     },
   });
 
   useEffect(() => {
     setSelectedGenres(new Set());
     setSelectedNetwork(new Set());
+    setSelectedKeywords(new Set());
     setSelectedYear(null);
+    setSelectedLanguage(null);
+    setSelectedSort(null);
     settoValue(null);
     setfromValue(null);
   }, [selectedMedia]);
 
   const years = Array.from(
-    { length: new Date().getFullYear() - 1999 + 1 },
+    { length: CURRENT_YEAR - 1999 + 1 },
     (_, i) => 1999 + i
   );
 
   const safeToYear = toValue ? toValue : 1999;
   const safeFromYear = fromValue ? fromValue : 1999;
   const fromYear = Array.from(
-    { length: new Date().getFullYear() - safeToYear + 1 },
+    { length: CURRENT_YEAR - safeToYear + 1 },
     (_, i) => safeToYear + i
   );
 
+  const rating = Array.from({ length: 10 }, (_, i) => i + 1);
+  const safeMinRating = minRating ? minRating : 1;
+  const safeMaxRating = maxRating ? maxRating : 1;
+  const dynamicMaxRating = Array.from(
+    { length: 10 - safeMinRating + 1 },
+    (_, i) => i + safeMinRating
+  );
   useEffect(() => {
     if (safeFromYear < safeToYear && fromValue !== null) {
       setfromValue(safeToYear);
     }
   }, [toValue]);
+  useEffect(() => {
+    if (safeMaxRating < safeMinRating && maxRating !== null) {
+      setMaxRating(safeMinRating);
+    }
+  }, [minRating]);
   return (
     <div className="py-20  space-y-12">
       <Empty className="">
@@ -203,6 +261,16 @@ export default function Discover() {
                 <div className="p-4 space-y-3">
                   <h1 className="font-medium">Select Media Type</h1>
                   <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={() => setSelectedMedia("all")}
+                      variant={
+                        selectedMedia === "all" ? "destructive" : "secondary"
+                      }
+                      className="flex-1"
+                      size="xl"
+                    >
+                      <IconFlameFilled /> Trending
+                    </Button>
                     <Button
                       onClick={() =>
                         setSelectedMedia((prev) =>
@@ -247,6 +315,59 @@ export default function Discover() {
                   <div className="flex-1 h-px bg-border"></div>
                 </div>
 
+                {/* <div className=" p-4 space-y-3">
+                  <h1 className="font-medium">Sort</h1>
+                  <div className="flex flex-wrap gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild className="flex-1">
+                        <Button
+                          className="w-full"
+                          size="xl"
+                          disabled={selectedMedia === "all"}
+                          variant="secondary"
+                        >
+                          Popularity
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="flex gap-2 p-1 border-0">
+                        <Button
+                          className="flex-1"
+                          size="xl"
+                          disabled={selectedMedia === "all"}
+                          variant="secondary"
+                        >
+                          Asc
+                        </Button>
+                        <Button
+                          className="flex-1"
+                          size="xl"
+                          disabled={selectedMedia === "all"}
+                          variant="secondary"
+                        >
+                          Desc
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
+
+                    <Button
+                      className="flex-1"
+                      size="xl"
+                      disabled={selectedMedia === "all"}
+                      variant="secondary"
+                    >
+                      Release Date
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      size="xl"
+                      disabled={selectedMedia === "all"}
+                      variant="secondary"
+                    >
+                      Vote Average
+                    </Button>
+                  </div>
+                </div> */}
+
                 <div className="p-4 space-y-3">
                   <h1 className="font-medium">
                     Genres{" "}
@@ -256,7 +377,13 @@ export default function Discover() {
                   </h1>
                   <div className="flex flex-wrap gap-2">
                     {(selectedMedia === "tv" ? tvGenres : movieGenres)
-                      .slice(expandGenre ? 0 : 6)
+                      .slice(
+                        0,
+                        expandGenre
+                          ? (selectedMedia === "tv" ? tvGenres : movieGenres)
+                              .length
+                          : 7
+                      )
                       .map((genre) => (
                         <Button
                           key={genre.id}
@@ -327,6 +454,7 @@ export default function Discover() {
                         years={years}
                         placeholder="To"
                         disabled={selectedMedia === "all"}
+                        label="year"
                       />
                       <Separator className="w-10!" />
                       <CommandComponent
@@ -335,12 +463,13 @@ export default function Discover() {
                         years={fromYear}
                         placeholder="From"
                         disabled={selectedMedia === "all"}
+                        label="year"
                       />
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {Array.from(
-                        { length: new Date().getFullYear() - 1999 + 1 },
+                        { length: CURRENT_YEAR - 1999 + 1 },
                         (_, i) => 1999 + i
                       )
                         .slice(expandYear ? 0 : 11)
@@ -348,7 +477,7 @@ export default function Discover() {
                           <Button
                             key={year}
                             size="xl"
-                            className="flex-1 font-mono"
+                            className="flex-1 tracking-wide"
                             disabled={selectedMedia === "all"}
                             // use selectedYear to determine variant
                             variant={
@@ -376,21 +505,99 @@ export default function Discover() {
                     </div>
                   )}
                 </div>
-                {/* <div className=" p-4 space-y-3">
-              <h1 className="font-medium">Select Keyword</h1>
-              <div className="flex flex-wrap gap-2">
-                {keywordTopics.map((meow, idx) => (
-                  <Button
-                    variant="secondary"
-                    className="flex-1"
-                    key={idx}
-                    size="xl"
-                  >
-                    {meow.label}
-                  </Button>
-                ))}
-              </div>
-            </div> */}
+
+                <div className="p-4 space-y-3">
+                  <h1 className="font-medium flex gap-3 items-end justify-between">
+                    Rating Range
+                  </h1>
+                  <div className="flex gap-2 items-center">
+                    <CommandComponent
+                      value={minRating}
+                      setValue={setMinRating}
+                      years={rating}
+                      placeholder="Min"
+                      disabled={selectedMedia === "all"}
+                      label="rating"
+                    />
+                    <Separator className="w-10!" />
+                    <CommandComponent
+                      value={maxRating}
+                      setValue={setMaxRating}
+                      years={dynamicMaxRating}
+                      placeholder="Max"
+                      disabled={selectedMedia === "all"}
+                      label="rating"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 space-y-3">
+                  <h1 className="font-medium flex gap-3 items-end justify-between">
+                    Languages
+                  </h1>
+                  <div className="flex flex-wrap gap-2">
+                    {languages
+                      .slice(0, expandLanguage ? languages.length : 14)
+                      .map((lang) => (
+                        <Button
+                          key={lang.code}
+                          size="xl"
+                          variant={
+                            selectedLanguage === lang.code
+                              ? "destructive"
+                              : "secondary"
+                          }
+                          onClick={() =>
+                            setSelectedLanguage((prev) =>
+                              prev === lang.code ? null : lang.code
+                            )
+                          }
+                          disabled={selectedMedia === "all"}
+                          className="flex-1"
+                        >
+                          {lang.name}
+                        </Button>
+                      ))}
+                    <Button
+                      variant="secondary"
+                      size="xl"
+                      onClick={() => setExpandLanguage((prev) => !prev)}
+                    >
+                      {expandLanguage ? <Minus /> : <Plus />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className=" p-4 space-y-3">
+                  <h1 className="font-medium">Keywords</h1>
+                  <div className="flex flex-wrap gap-2">
+                    {keywordTopics
+                      .slice(0, expandKeyword ? keywordTopics.length : 12)
+                      .map((meow) => (
+                        <Button
+                          variant={
+                            selectedKeywords.has(meow.value)
+                              ? "destructive"
+                              : "secondary"
+                          }
+                          className="flex-1"
+                          key={meow.value}
+                          size="xl"
+                          onClick={() => toggleKeywords(meow.value)}
+                          disabled={selectedMedia === "all"}
+                        >
+                          {meow.label}
+                        </Button>
+                      ))}
+                    <Button
+                      variant="secondary"
+                      size="xl"
+                      onClick={() => setExpandKeyword((prev) => !prev)}
+                    >
+                      {expandKeyword ? <Minus /> : <Plus />}
+                    </Button>
+                  </div>
+                </div>
                 {/* <DrawerFooter>
                   <Button>Reset</Button>
                 </DrawerFooter> */}
@@ -428,6 +635,7 @@ function CommandComponent({
   setValue,
   placeholder,
   disabled,
+  label,
 }: {
   // open: boolean;
   // setOpen: (open: boolean) => void;
@@ -436,6 +644,7 @@ function CommandComponent({
   setValue: (value: number | null) => void;
   placeholder: string;
   disabled: boolean;
+  label: string;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -453,11 +662,14 @@ function CommandComponent({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className=" p-0">
         <Command>
-          <CommandInput placeholder="Search Year..." className="h-9" />
+          <CommandInput
+            placeholder={`Search ${label}...`}
+            className="h-9 capitalize"
+          />
           <CommandList>
-            <CommandEmpty>No year found.</CommandEmpty>
+            <CommandEmpty>{`No ${label} found.`}</CommandEmpty>
             <CommandGroup>
               <CommandItem
                 onSelect={() => {
@@ -465,7 +677,7 @@ function CommandComponent({
                   setOpen(false);
                 }}
               >
-                Unset
+                Reset...
               </CommandItem>
               {years.map((year) => (
                 <CommandItem
@@ -476,7 +688,8 @@ function CommandComponent({
                     setOpen(false);
                   }}
                 >
-                  {year}
+                  {year}{" "}
+                  {label === "rating" && <IconCarambolaFilled color="yellow" />}
                   <Check
                     className={cn(
                       "ml-auto",
@@ -492,3 +705,26 @@ function CommandComponent({
     </Popover>
   );
 }
+const languages = [
+  { code: "en", name: "English" },
+  { code: "tl", name: "Filipino" },
+  { code: "ko", name: "Korean" },
+  { code: "ja", name: "Japanese" },
+  { code: "fr", name: "French" },
+  { code: "de", name: "German" },
+  { code: "es", name: "Spanish" },
+  { code: "it", name: "Italian" },
+  { code: "zh", name: "Chinese" },
+  { code: "hi", name: "Hindi" },
+  { code: "ru", name: "Russian" },
+  { code: "pt", name: "Portuguese" },
+  { code: "sv", name: "Swedish" },
+  { code: "nl", name: "Dutch" },
+  { code: "tr", name: "Turkish" },
+  { code: "pl", name: "Polish" },
+  { code: "da", name: "Danish" },
+  { code: "no", name: "Norwegian" },
+  { code: "fi", name: "Finnish" },
+  { code: "he", name: "Hebrew" },
+  { code: "ar", name: "Arabic" },
+];
