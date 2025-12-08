@@ -73,7 +73,7 @@ export default function Discover() {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [toValue, settoValue] = useState<number | null>(null);
   const [fromValue, setfromValue] = useState<number | null>(null);
-  const [yearType, setYearType] = useState(false);
+  const [yearType, setYearType] = useState(true);
   const toggleGenre = (id: number) => {
     setSelectedGenres((prev) => {
       const newSet = new Set(prev);
@@ -101,7 +101,9 @@ export default function Discover() {
     endpoint:
       selectedGenres.size === 0 &&
       selectedNetwork.size === 0 &&
-      selectedYear === null
+      selectedYear === null &&
+      toValue === null &&
+      fromValue === null
         ? `trending/${selectedMedia}/day`
         : `discover/${selectedMedia}`,
     params: {
@@ -112,9 +114,27 @@ export default function Discover() {
         with_genres: [...selectedGenres].join(","),
       }),
 
-      ...(selectedYear && {
-        primary_release_year: selectedYear,
-      }),
+      ...(yearType === false && selectedYear != null
+        ? selectedMedia === "tv"
+          ? {
+              "first_air_date.gte": `${selectedYear}-01-01`,
+              "first_air_date.lte": `${selectedYear}-12-31`,
+            }
+          : {
+              "primary_release_date.gte": `${selectedYear}-01-01`,
+              "primary_release_date.lte": `${selectedYear}-12-31`,
+            }
+        : yearType === true && fromValue != null && toValue != null
+        ? selectedMedia === "tv"
+          ? {
+              "first_air_date.gte": `${toValue}-01-01`,
+              "first_air_date.lte": `${fromValue}-12-31`,
+            }
+          : {
+              "primary_release_date.gte": `${toValue}-01-01`,
+              "primary_release_date.lte": `${fromValue}-12-31`,
+            }
+        : {}), // default empty object if no year filter
 
       ...(selectedNetwork.size > 0 &&
         (selectedMedia === "tv"
