@@ -30,12 +30,12 @@ export default function SpotlightBorderWrapper({
       {/* Spotlight border layer */}
       <div
         style={{
-          border: "2px solid red",
+          border: "1px solid red",
           opacity: isVisible ? 1 : 0,
           WebkitMaskImage: `radial-gradient(${radius}% ${radius}px at ${position.x}px ${position.y}px, black 45%, transparent)`,
           maskImage: `radial-gradient(${radius}% ${radius}px at ${position.x}px ${position.y}px, black 45%, transparent)`,
         }}
-        className="pointer-events-none absolute left-0 top-0 z-10 h-full w-full rounded-full transition-opacity duration-500"
+        className="pointer-events-none absolute left-0 top-0 z-10 h-full w-full rounded-md transition-opacity duration-500"
         aria-hidden="true"
       />
       <div className="relative z-0">{children}</div>

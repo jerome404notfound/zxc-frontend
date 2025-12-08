@@ -63,7 +63,7 @@ export default function SearchModal() {
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
         style={{ willChange: "opacity, transform" }}
-        className="fixed top-6 left-1/2 -translate-x-1/2 border-2 p-1 rounded-full flex items-center gap-3 z-10 "
+        className="fixed top-8 right-24 border p-0.5 rounded-lg flex items-center gap-3 z-10 "
       >
         <SpotlightBorderWrapper>
           <Input
@@ -71,7 +71,7 @@ export default function SearchModal() {
             value={text}
             type="search"
             placeholder="Search ..."
-            className="w-2xl backdrop-blur-2xl border-0 h-11 pl-14 rounded-full bg-background/50! text-base!"
+            className="w-md backdrop-blur-2xl border-0 h-9 pl-14 rounded-lg bg-background/50! text-base!"
             onChange={handleSearch}
           />
         </SpotlightBorderWrapper>
