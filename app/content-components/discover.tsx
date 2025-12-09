@@ -251,7 +251,7 @@ export default function Discover() {
     .map((g) => g.name)
     .join(", ");
   return (
-    <div className="py-20  space-y-12">
+    <div className="py-20  space-y-12 ">
       <Empty className="">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -286,65 +286,67 @@ export default function Discover() {
                     more.
                   </DrawerDescription>
                 </DrawerHeader>
+                <div className="overflow-auto custom-scrollbar space-y-3">
+                  <div className="p-4 space-y-3">
+                    <h1 className="font-medium">Select Media Type</h1>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        onClick={() => setSelectedMedia("all")}
+                        variant={
+                          selectedMedia === "all" ? "destructive" : "secondary"
+                        }
+                        className="flex-1"
+                        size="xl"
+                      >
+                        <IconFlameFilled /> Trending
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          setSelectedMedia((prev) =>
+                            prev === "movie" ? "all" : "movie"
+                          )
+                        }
+                        variant={
+                          selectedMedia === "movie"
+                            ? "destructive"
+                            : "secondary"
+                        }
+                        className="flex-1"
+                        size="xl"
+                      >
+                        <Film /> Movie
+                      </Button>
 
-                <div className="p-4 space-y-3">
-                  <h1 className="font-medium">Select Media Type</h1>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      onClick={() => setSelectedMedia("all")}
-                      variant={
-                        selectedMedia === "all" ? "destructive" : "secondary"
-                      }
-                      className="flex-1"
-                      size="xl"
-                    >
-                      <IconFlameFilled /> Trending
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        setSelectedMedia((prev) =>
-                          prev === "movie" ? "all" : "movie"
-                        )
-                      }
-                      variant={
-                        selectedMedia === "movie" ? "destructive" : "secondary"
-                      }
-                      className="flex-1"
-                      size="xl"
-                    >
-                      <Film /> Movie
-                    </Button>
-
-                    <Button
-                      onClick={() =>
-                        setSelectedMedia((prev) =>
-                          prev === "tv" ? "all" : "tv"
-                        )
-                      }
-                      variant={
-                        selectedMedia === "tv" ? "destructive" : "secondary"
-                      }
-                      className="flex-1"
-                      size="xl"
-                    >
-                      <Tv /> TV Show
-                    </Button>
+                      <Button
+                        onClick={() =>
+                          setSelectedMedia((prev) =>
+                            prev === "tv" ? "all" : "tv"
+                          )
+                        }
+                        variant={
+                          selectedMedia === "tv" ? "destructive" : "secondary"
+                        }
+                        className="flex-1"
+                        size="xl"
+                      >
+                        <Tv /> TV Show
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-4 flex items-center gap-3">
-                  <div className="flex-1 h-px bg-border"></div>
-                  <h1 className="text-sm text-muted-foreground">
-                    {selectedMedia === "all"
-                      ? "Select a media type to enable filters"
-                      : selectedMedia === "movie"
-                      ? "Movie Filters"
-                      : "TV Show Filters"}
-                  </h1>
-                  <div className="flex-1 h-px bg-border"></div>
-                </div>
+                  <div className="p-4 flex items-center gap-3">
+                    <div className="flex-1 h-px bg-border"></div>
+                    <h1 className="text-sm text-muted-foreground">
+                      {selectedMedia === "all"
+                        ? "Select a media type to enable filters"
+                        : selectedMedia === "movie"
+                        ? "Movie Filters"
+                        : "TV Show Filters"}
+                    </h1>
+                    <div className="flex-1 h-px bg-border"></div>
+                  </div>
 
-                {/* <div className=" p-4 space-y-3">
+                  {/* <div className=" p-4 space-y-3">
                   <h1 className="font-medium">Sort</h1>
                   <div className="flex flex-wrap gap-2">
                     <Popover>
@@ -397,274 +399,279 @@ export default function Discover() {
                   </div>
                 </div> */}
 
-                <div className="p-4 space-y-3">
-                  <h1 className="font-medium">
-                    Genres{" "}
-                    <span className="text-red-500">
-                      {selectedGenres.size === 0
-                        ? ""
-                        : `(${selectedGenres.size})`}
-                    </span>{" "}
-                    <span className="text-muted-foreground  text-sm font-normal">
-                      (Multi Select Support)
-                    </span>
-                  </h1>
-                  <div className="flex flex-wrap gap-2">
-                    {(selectedMedia === "tv" ? tvGenres : movieGenres)
-                      .slice(
-                        0,
-                        expandGenre
-                          ? (selectedMedia === "tv" ? tvGenres : movieGenres)
-                              .length
-                          : 7
-                      )
-                      .map((genre) => (
-                        <Button
-                          key={genre.id}
-                          size="xl"
-                          className="flex-1"
-                          disabled={selectedMedia === "all"}
-                          variant={
-                            selectedGenres.has(genre.id)
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          onClick={() => toggleGenre(genre.id)}
-                        >
-                          {genre.name}
-                        </Button>
-                      ))}
-                    <Button
-                      variant="secondary"
-                      size="icon-lg"
-                      onClick={() => setExpandGenre((prev) => !prev)}
-                    >
-                      {expandGenre ? <Minus /> : <Plus />}
-                    </Button>
-                  </div>
-                </div>
-                <div className=" p-4 space-y-3">
-                  <h1 className="font-medium">
-                    Keywords{" "}
-                    <span className="text-red-500">
-                      {selectedKeywords.size === 0
-                        ? ""
-                        : `(${selectedKeywords.size})`}
-                    </span>
-                  </h1>
-                  <div className="flex flex-wrap gap-2">
-                    {keywordTopics
-                      .slice(0, expandKeyword ? keywordTopics.length : 6)
-                      .map((meow) => (
-                        <Button
-                          variant={
-                            selectedKeywords.has(meow.value)
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className="flex-1"
-                          key={meow.value}
-                          size="xl"
-                          onClick={() => toggleKeywords(meow.value)}
-                          disabled={selectedMedia === "all"}
-                        >
-                          {meow.label}
-                        </Button>
-                      ))}
-                    <Button
-                      variant="secondary"
-                      size="icon-lg"
-                      onClick={() => setExpandKeyword((prev) => !prev)}
-                    >
-                      {expandKeyword ? <Minus /> : <Plus />}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="p-4 space-y-3">
-                  <h1 className="font-medium flex gap-3 items-end justify-between">
-                    {yearType ? " Year Range" : "Released Year"}
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => setYearType((prev) => !prev)}
-                    >
-                      {yearType ? <Calendar /> : <IconTransfer />}
-                    </Button>
-                  </h1>
-                  {yearType ? (
-                    <div className="flex gap-2 items-center">
-                      <CommandComponent
-                        value={toValue}
-                        setValue={settoValue}
-                        years={years}
-                        placeholder="To"
-                        disabled={selectedMedia === "all"}
-                        label="year"
-                      />
-                      <Separator className="w-10! bg-border" />
-                      <CommandComponent
-                        value={fromValue}
-                        setValue={setfromValue}
-                        years={fromYear}
-                        placeholder="From"
-                        disabled={selectedMedia === "all"}
-                        label="year"
-                      />
-                    </div>
-                  ) : (
+                  <div className="p-4 space-y-3">
+                    <h1 className="font-medium">
+                      Genres{" "}
+                      <span className="text-red-500">
+                        {selectedGenres.size === 0
+                          ? ""
+                          : `(${selectedGenres.size})`}
+                      </span>{" "}
+                      <span className="text-muted-foreground  text-sm font-normal">
+                        (Multi Select Support)
+                      </span>
+                    </h1>
                     <div className="flex flex-wrap gap-2">
-                      {Array.from(
-                        { length: CURRENT_YEAR - 1999 + 1 },
-                        (_, i) => 1999 + i
-                      )
-                        .slice(expandYear ? 0 : 20)
-                        .map((year) => (
+                      {(selectedMedia === "tv" ? tvGenres : movieGenres)
+                        .slice(
+                          0,
+                          expandGenre
+                            ? (selectedMedia === "tv" ? tvGenres : movieGenres)
+                                .length
+                            : 7
+                        )
+                        .map((genre) => (
                           <Button
-                            key={year}
+                            key={genre.id}
                             size="xl"
-                            className="flex-1 tracking-wide"
+                            className="flex-1"
                             disabled={selectedMedia === "all"}
-                            // use selectedYear to determine variant
                             variant={
-                              selectedYear === year
+                              selectedGenres.has(genre.id)
                                 ? "destructive"
                                 : "secondary"
                             }
-                            onClick={
-                              () =>
-                                setSelectedYear((prev) =>
-                                  prev === year ? null : year
-                                ) // toggle
-                            }
+                            onClick={() => toggleGenre(genre.id)}
                           >
-                            {year}
+                            {genre.name}
                           </Button>
                         ))}
                       <Button
-                        onClick={() => setExpandYear((prev) => !prev)}
+                        variant="secondary"
+                        size="icon-lg"
+                        onClick={() => setExpandGenre((prev) => !prev)}
+                      >
+                        {expandGenre ? <Minus /> : <Plus />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className=" p-4 space-y-3">
+                    <h1 className="font-medium">
+                      Keywords{" "}
+                      <span className="text-red-500">
+                        {selectedKeywords.size === 0
+                          ? ""
+                          : `(${selectedKeywords.size})`}
+                      </span>
+                    </h1>
+                    <div className="flex flex-wrap gap-2">
+                      {keywordTopics
+                        .slice(0, expandKeyword ? keywordTopics.length : 6)
+                        .map((meow) => (
+                          <Button
+                            variant={
+                              selectedKeywords.has(meow.value)
+                                ? "destructive"
+                                : "secondary"
+                            }
+                            className="flex-1"
+                            key={meow.value}
+                            size="xl"
+                            onClick={() => toggleKeywords(meow.value)}
+                            disabled={selectedMedia === "all"}
+                          >
+                            {meow.label}
+                          </Button>
+                        ))}
+                      <Button
+                        variant="secondary"
+                        size="icon-lg"
+                        onClick={() => setExpandKeyword((prev) => !prev)}
+                      >
+                        {expandKeyword ? <Minus /> : <Plus />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="p-4 space-y-3">
+                    <h1 className="font-medium flex gap-3 items-end justify-between">
+                      {yearType ? " Year Range" : "Released Year"}
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => setYearType((prev) => !prev)}
+                      >
+                        {yearType ? <Calendar /> : <IconTransfer />}
+                      </Button>
+                    </h1>
+                    {yearType ? (
+                      <div className="flex gap-2 items-center">
+                        <CommandComponent
+                          value={toValue}
+                          setValue={settoValue}
+                          years={years}
+                          placeholder="To"
+                          disabled={selectedMedia === "all"}
+                          label="year"
+                        />
+                        <Separator className="w-10! bg-border" />
+                        <CommandComponent
+                          value={fromValue}
+                          setValue={setfromValue}
+                          years={fromYear}
+                          placeholder="From"
+                          disabled={selectedMedia === "all"}
+                          label="year"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from(
+                          { length: CURRENT_YEAR - 1999 + 1 },
+                          (_, i) => 1999 + i
+                        )
+                          .slice(expandYear ? 0 : 20)
+                          .map((year) => (
+                            <Button
+                              key={year}
+                              size="xl"
+                              className="flex-1 tracking-wide"
+                              disabled={selectedMedia === "all"}
+                              // use selectedYear to determine variant
+                              variant={
+                                selectedYear === year
+                                  ? "destructive"
+                                  : "secondary"
+                              }
+                              onClick={
+                                () =>
+                                  setSelectedYear((prev) =>
+                                    prev === year ? null : year
+                                  ) // toggle
+                              }
+                            >
+                              {year}
+                            </Button>
+                          ))}
+                        <Button
+                          onClick={() => setExpandYear((prev) => !prev)}
+                          size="icon-lg"
+                          variant="secondary"
+                        >
+                          {expandYear ? <Minus /> : <Plus />}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 space-y-3">
+                    <h1 className="font-medium flex gap-3 items-end justify-between">
+                      Rating Range
+                    </h1>
+                    <div className="flex gap-2 items-center">
+                      <CommandComponent
+                        value={minRating}
+                        setValue={setMinRating}
+                        years={rating}
+                        placeholder="Min"
+                        disabled={selectedMedia === "all"}
+                        label="rating"
+                      />
+                      <Separator className="w-10! bg-border" />
+                      <CommandComponent
+                        value={maxRating}
+                        setValue={setMaxRating}
+                        years={dynamicMaxRating}
+                        placeholder="Max"
+                        disabled={selectedMedia === "all"}
+                        label="rating"
+                      />
+                    </div>
+                  </div>
+                  <div className=" p-4 space-y-3">
+                    <h1 className="font-medium">
+                      Companies{" "}
+                      <span className="text-red-500">
+                        {selectedNetwork.size === 0
+                          ? ""
+                          : `(${selectedNetwork.size})`}
+                      </span>
+                    </h1>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedMedia === "tv"
+                        ? tvNetworks
+                        : productionCompanies
+                      )
+                        .slice(
+                          0,
+                          expandCompanies
+                            ? (selectedMedia === "tv"
+                                ? tvNetworks
+                                : productionCompanies
+                              ).length
+                            : 5
+                        )
+                        .map((network) => (
+                          <Button
+                            variant={
+                              selectedNetwork.has(network.id)
+                                ? "destructive"
+                                : "secondary"
+                            }
+                            className="flex-1"
+                            key={network.id}
+                            size="xl"
+                            disabled={selectedMedia === "all"}
+                            onClick={() => toggleNetwork(network.id)}
+                          >
+                            {network.name}
+                          </Button>
+                        ))}
+                      <Button
+                        onClick={() => setExpandCompanies((prev) => !prev)}
                         size="icon-lg"
                         variant="secondary"
                       >
-                        {expandYear ? <Minus /> : <Plus />}
+                        {expandCompanies ? <Minus /> : <Plus />}
                       </Button>
                     </div>
-                  )}
-                </div>
-
-                <div className="p-4 space-y-3">
-                  <h1 className="font-medium flex gap-3 items-end justify-between">
-                    Rating Range
-                  </h1>
-                  <div className="flex gap-2 items-center">
-                    <CommandComponent
-                      value={minRating}
-                      setValue={setMinRating}
-                      years={rating}
-                      placeholder="Min"
-                      disabled={selectedMedia === "all"}
-                      label="rating"
-                    />
-                    <Separator className="w-10! bg-border" />
-                    <CommandComponent
-                      value={maxRating}
-                      setValue={setMaxRating}
-                      years={dynamicMaxRating}
-                      placeholder="Max"
-                      disabled={selectedMedia === "all"}
-                      label="rating"
-                    />
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <h1 className="font-medium ">
+                      Languages{" "}
+                      <span className="text-red-500">
+                        {!selectedLanguage ? "" : `(1)`}
+                      </span>
+                    </h1>
+                    <div className="flex flex-wrap gap-2">
+                      {languages
+                        .slice(0, expandLanguage ? languages.length : 7)
+                        .map((lang) => (
+                          <Button
+                            key={lang.code}
+                            size="xl"
+                            variant={
+                              selectedLanguage === lang.code
+                                ? "destructive"
+                                : "secondary"
+                            }
+                            onClick={() =>
+                              setSelectedLanguage((prev) =>
+                                prev === lang.code ? null : lang.code
+                              )
+                            }
+                            disabled={selectedMedia === "all"}
+                            className="flex-1"
+                          >
+                            {lang.name}
+                          </Button>
+                        ))}
+                      <Button
+                        variant="secondary"
+                        size="icon-lg"
+                        onClick={() => setExpandLanguage((prev) => !prev)}
+                      >
+                        {expandLanguage ? <Minus /> : <Plus />}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <div className=" p-4 space-y-3">
-                  <h1 className="font-medium">
-                    Companies{" "}
-                    <span className="text-red-500">
-                      {selectedNetwork.size === 0
-                        ? ""
-                        : `(${selectedNetwork.size})`}
-                    </span>
-                  </h1>
-                  <div className="flex flex-wrap gap-2">
-                    {(selectedMedia === "tv" ? tvNetworks : productionCompanies)
-                      .slice(
-                        0,
-                        expandCompanies
-                          ? (selectedMedia === "tv"
-                              ? tvNetworks
-                              : productionCompanies
-                            ).length
-                          : 5
-                      )
-                      .map((network) => (
-                        <Button
-                          variant={
-                            selectedNetwork.has(network.id)
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className="flex-1"
-                          key={network.id}
-                          size="xl"
-                          disabled={selectedMedia === "all"}
-                          onClick={() => toggleNetwork(network.id)}
-                        >
-                          {network.name}
-                        </Button>
-                      ))}
-                    <Button
-                      onClick={() => setExpandCompanies((prev) => !prev)}
-                      size="icon-lg"
-                      variant="secondary"
-                    >
-                      {expandCompanies ? <Minus /> : <Plus />}
-                    </Button>
-                  </div>
-                </div>
-                <div className="p-4 space-y-3">
-                  <h1 className="font-medium ">
-                    Languages{" "}
-                    <span className="text-red-500">
-                      {!selectedLanguage ? "" : `(1)`}
-                    </span>
-                  </h1>
-                  <div className="flex flex-wrap gap-2">
-                    {languages
-                      .slice(0, expandLanguage ? languages.length : 7)
-                      .map((lang) => (
-                        <Button
-                          key={lang.code}
-                          size="xl"
-                          variant={
-                            selectedLanguage === lang.code
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          onClick={() =>
-                            setSelectedLanguage((prev) =>
-                              prev === lang.code ? null : lang.code
-                            )
-                          }
-                          disabled={selectedMedia === "all"}
-                          className="flex-1"
-                        >
-                          {lang.name}
-                        </Button>
-                      ))}
-                    <Button
-                      variant="secondary"
-                      size="icon-lg"
-                      onClick={() => setExpandLanguage((prev) => !prev)}
-                    >
-                      {expandLanguage ? <Minus /> : <Plus />}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* <DrawerFooter className="sticky bottom-0 bg-background grid grid-cols-2">
+                <DrawerFooter className=" grid grid-cols-2">
                   <Button className="">Reset</Button>
-                  <Button className="">Close</Button>
-                </DrawerFooter> */}
+                  <Button variant="outline" className="">
+                    Close
+                  </Button>
+                </DrawerFooter>
               </DrawerContent>
             </Drawer>
 
