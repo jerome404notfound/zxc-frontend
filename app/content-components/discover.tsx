@@ -502,7 +502,7 @@ export default function Discover() {
                         disabled={selectedMedia === "all"}
                         label="year"
                       />
-                      <Separator className="w-10!" />
+                      <Separator className="w-10! bg-border" />
                       <CommandComponent
                         value={fromValue}
                         setValue={setfromValue}
@@ -565,7 +565,7 @@ export default function Discover() {
                       disabled={selectedMedia === "all"}
                       label="rating"
                     />
-                    <Separator className="w-10!" />
+                    <Separator className="w-10! bg-border" />
                     <CommandComponent
                       value={maxRating}
                       setValue={setMaxRating}
@@ -661,8 +661,9 @@ export default function Discover() {
                   </div>
                 </div>
 
-                {/* <DrawerFooter>
-                  <Button>Reset</Button>
+                {/* <DrawerFooter className="sticky bottom-0 bg-background grid grid-cols-2">
+                  <Button className="">Reset</Button>
+                  <Button className="">Close</Button>
                 </DrawerFooter> */}
               </DrawerContent>
             </Drawer>
@@ -683,7 +684,10 @@ export default function Discover() {
           Select Filter
         </Button>
       </div> */}
-      <h1 className="sectionName uppercase">
+      {/* <h1 className="sectionName uppercase">
+        {selectedGenres.size === 0 ? "DISCOVER" : selectedGenreLabel}
+      </h1> */}
+      <h1 className=" uppercase  mask-[linear-gradient(to_bottom,black_0%,transparent_85%)] lg:text-7xl text-6xl font-bold text-red-700  translate-y-15 font-sans tracking-tighter">
         {selectedGenres.size === 0 ? "DISCOVER" : selectedGenreLabel}
       </h1>
       <div className="grid lg:grid-cols-7 md:grid-cols-5 sm:grid-cols-4 grid-cols-3 lg:gap-4 gap-2">

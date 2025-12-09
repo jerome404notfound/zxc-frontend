@@ -97,18 +97,16 @@ export default function BrowseModal() {
           <DialogTitle>Are you absolutely sure?</DialogTitle>{" "}
         </DialogHeader>
         <div className="w-[90%] mx-auto  py-20">
-          <div className="p-1 mb-5">
-            <h2 className="text-3xl font-bold  montserrat tracking-wide mb-1">
-              {title}
-              {/* <span className="italic  font-serif text-red-700 ml-2">{label}</span> */}
-            </h2>
-            <p
-              onClick={() => router.back()}
-              className="cursor-pointer flex items-center gap-1.5 text-muted-foreground hover:underline transition duration-150  w-fit"
-            >
-              <ArrowLeft className="size-4" /> Go back
-            </p>
-          </div>
+          <p
+            onClick={() => router.back()}
+            className="cursor-pointer flex items-center gap-1.5 text-muted-foreground hover:underline transition duration-150  w-fit"
+          >
+            <ArrowLeft className="size-4" /> Go back
+          </p>
+          <h1 className=" uppercase  mask-[linear-gradient(to_bottom,black_0%,transparent_85%)] lg:text-7xl text-6xl font-bold text-red-700  translate-y-3 font-sans tracking-tighter pointer-events-none ">
+            {title}
+          </h1>
+
           <div className="grid grid-cols-7 gap-4">
             {data?.map((meow) => (
               <MovieCard key={meow.id} movie={meow} media_type={media_type} />
