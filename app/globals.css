@@ -83,7 +83,20 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
-
+.sectionName {
+  font-size: clamp(2.8rem, 2.6rem + 6.8493vw, 6rem);
+  width: 100%;
+  text-align: center;
+  background: linear-gradient(0deg, #04040400 15%, red);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -5px;
+  line-height: 95px;
+  word-spacing: 5px;
+  transform: translateY(65);
+  font-weight: 700;
+}
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

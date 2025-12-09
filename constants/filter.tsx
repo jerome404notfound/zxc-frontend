@@ -460,6 +460,9 @@ export const keywordTopics = [
   { label: "Survival", value: "10349" },
   { label: "South Korea", value: "261681" },
   { label: "Zombie", value: "12377" },
+  { label: "Teen Drama", value: "155722" },
+  { label: "Teen Drama 2", value: "6270" },
+
   { label: "Artificial Intelligence", value: "310" },
   { label: "Vampire", value: "3133" },
   { label: "Future", value: "2964" },

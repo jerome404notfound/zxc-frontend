@@ -1,6 +1,7 @@
 import {
   IconCarambolaFilled,
   IconCategoryPlus,
+  IconFilterPlus,
   IconFlame,
   IconFlameFilled,
   IconFolderCode,
@@ -12,11 +13,13 @@ import {
 } from "@tabler/icons-react";
 import {
   ArrowUpRightIcon,
+  Calendar,
   Check,
   ChevronsUpDown,
   Film,
   Minus,
   Plus,
+  TextSearch,
   Tv,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -64,6 +67,7 @@ import {
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import TitleReusable from "@/components/ui/title";
 export default function Discover() {
   const [selectedMedia, setSelectedMedia] = useState<"all" | "movie" | "tv">(
     "all"
@@ -74,6 +78,7 @@ export default function Discover() {
   );
   const [expandYear, setExpandYear] = useState(false);
   const [expandGenre, setExpandGenre] = useState(false);
+  const [expandCompanies, setExpandCompanies] = useState(false);
   const [expandLanguage, setExpandLanguage] = useState(false);
   const [expandKeyword, setExpandKeyword] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -119,20 +124,20 @@ export default function Discover() {
       return newSet;
     });
   };
-  console.log("fromValue", fromValue);
+  const isTrending =
+    selectedGenres.size === 0 &&
+    selectedNetwork.size === 0 &&
+    !selectedYear &&
+    !toValue &&
+    !fromValue &&
+    !minRating &&
+    !maxRating &&
+    !selectedLanguage &&
+    selectedKeywords.size === 0;
   const query = useGetReusableData<ApiTypes>({
-    endpoint:
-      selectedGenres.size === 0 &&
-      selectedNetwork.size === 0 &&
-      selectedYear === null &&
-      toValue === null &&
-      fromValue === null &&
-      minRating === null &&
-      maxRating === null &&
-      selectedLanguage === null &&
-      selectedKeywords.size === 0
-        ? `trending/${selectedMedia}/day`
-        : `discover/${selectedMedia}`,
+    endpoint: isTrending
+      ? `trending/${selectedMedia}/day`
+      : `discover/${selectedMedia}`,
     params: {
       page: 1,
       sort_by: "popularity.desc",
@@ -197,6 +202,17 @@ export default function Discover() {
     setfromValue(null);
   }, [selectedMedia]);
 
+  const resetFilter = () => {
+    setSelectedMedia("all");
+    setSelectedGenres(new Set());
+    setSelectedNetwork(new Set());
+    setSelectedKeywords(new Set());
+    setSelectedYear(null);
+    setSelectedLanguage(null);
+    setSelectedSort(null);
+    settoValue(null);
+    setfromValue(null);
+  };
   const years = Array.from(
     { length: CURRENT_YEAR - 1999 + 1 },
     (_, i) => 1999 + i
@@ -226,6 +242,14 @@ export default function Discover() {
       setMaxRating(safeMinRating);
     }
   }, [minRating]);
+
+  const selectedGenreLabel = movieGenres.find((genre) =>
+    selectedGenres.has(genre.id)
+  )?.name;
+  const selectedGenreLabels = movieGenres
+    .filter((genre) => selectedGenres.has(genre.id))
+    .map((g) => g.name)
+    .join(", ");
   return (
     <div className="py-20  space-y-12">
       <Empty className="">
@@ -250,7 +274,12 @@ export default function Discover() {
               <DrawerContent className="">
                 <DrawerHeader>
                   <DrawerTitle className="text-lg tracking-wide">
-                    Advanced Filters
+                    <TitleReusable
+                      title="Advanced Filters"
+                      description=""
+                      Icon={IconFilterPlus}
+                      textColor="text-red-700/70"
+                    />
                   </DrawerTitle>
                   <DrawerDescription>
                     Customize your search using genres, years, networks, and
@@ -298,7 +327,7 @@ export default function Discover() {
                       className="flex-1"
                       size="xl"
                     >
-                      <Tv /> TV Shows
+                      <Tv /> TV Show
                     </Button>
                   </div>
                 </div>
@@ -307,10 +336,10 @@ export default function Discover() {
                   <div className="flex-1 h-px bg-border"></div>
                   <h1 className="text-sm text-muted-foreground">
                     {selectedMedia === "all"
-                      ? "Select media type first to unlock"
+                      ? "Select a media type to enable filters"
                       : selectedMedia === "movie"
-                      ? "Movie filters"
-                      : "TV Show filters"}
+                      ? "Movie Filters"
+                      : "TV Show Filters"}
                   </h1>
                   <div className="flex-1 h-px bg-border"></div>
                 </div>
@@ -371,6 +400,11 @@ export default function Discover() {
                 <div className="p-4 space-y-3">
                   <h1 className="font-medium">
                     Genres{" "}
+                    <span className="text-red-500">
+                      {selectedGenres.size === 0
+                        ? ""
+                        : `(${selectedGenres.size})`}
+                    </span>{" "}
                     <span className="text-muted-foreground  text-sm font-normal">
                       (Multi Select Support)
                     </span>
@@ -402,36 +436,48 @@ export default function Discover() {
                       ))}
                     <Button
                       variant="secondary"
-                      size="xl"
+                      size="icon-lg"
                       onClick={() => setExpandGenre((prev) => !prev)}
                     >
                       {expandGenre ? <Minus /> : <Plus />}
                     </Button>
                   </div>
                 </div>
-
                 <div className=" p-4 space-y-3">
-                  <h1 className="font-medium">Companies</h1>
+                  <h1 className="font-medium">
+                    Keywords{" "}
+                    <span className="text-red-500">
+                      {selectedKeywords.size === 0
+                        ? ""
+                        : `(${selectedKeywords.size})`}
+                    </span>
+                  </h1>
                   <div className="flex flex-wrap gap-2">
-                    {(selectedMedia === "tv"
-                      ? tvNetworks
-                      : productionCompanies
-                    ).map((network) => (
-                      <Button
-                        variant={
-                          selectedNetwork.has(network.id)
-                            ? "destructive"
-                            : "secondary"
-                        }
-                        className="flex-1"
-                        key={network.id}
-                        size="xl"
-                        disabled={selectedMedia === "all"}
-                        onClick={() => toggleNetwork(network.id)}
-                      >
-                        {network.name}
-                      </Button>
-                    ))}
+                    {keywordTopics
+                      .slice(0, expandKeyword ? keywordTopics.length : 6)
+                      .map((meow) => (
+                        <Button
+                          variant={
+                            selectedKeywords.has(meow.value)
+                              ? "destructive"
+                              : "secondary"
+                          }
+                          className="flex-1"
+                          key={meow.value}
+                          size="xl"
+                          onClick={() => toggleKeywords(meow.value)}
+                          disabled={selectedMedia === "all"}
+                        >
+                          {meow.label}
+                        </Button>
+                      ))}
+                    <Button
+                      variant="secondary"
+                      size="icon-lg"
+                      onClick={() => setExpandKeyword((prev) => !prev)}
+                    >
+                      {expandKeyword ? <Minus /> : <Plus />}
+                    </Button>
                   </div>
                 </div>
 
@@ -443,7 +489,7 @@ export default function Discover() {
                       variant="secondary"
                       onClick={() => setYearType((prev) => !prev)}
                     >
-                      <IconTransfer />
+                      {yearType ? <Calendar /> : <IconTransfer />}
                     </Button>
                   </h1>
                   {yearType ? (
@@ -472,7 +518,7 @@ export default function Discover() {
                         { length: CURRENT_YEAR - 1999 + 1 },
                         (_, i) => 1999 + i
                       )
-                        .slice(expandYear ? 0 : 11)
+                        .slice(expandYear ? 0 : 20)
                         .map((year) => (
                           <Button
                             key={year}
@@ -497,7 +543,7 @@ export default function Discover() {
                         ))}
                       <Button
                         onClick={() => setExpandYear((prev) => !prev)}
-                        size="xl"
+                        size="icon-lg"
                         variant="secondary"
                       >
                         {expandYear ? <Minus /> : <Plus />}
@@ -530,14 +576,61 @@ export default function Discover() {
                     />
                   </div>
                 </div>
-
+                <div className=" p-4 space-y-3">
+                  <h1 className="font-medium">
+                    Companies{" "}
+                    <span className="text-red-500">
+                      {selectedNetwork.size === 0
+                        ? ""
+                        : `(${selectedNetwork.size})`}
+                    </span>
+                  </h1>
+                  <div className="flex flex-wrap gap-2">
+                    {(selectedMedia === "tv" ? tvNetworks : productionCompanies)
+                      .slice(
+                        0,
+                        expandCompanies
+                          ? (selectedMedia === "tv"
+                              ? tvNetworks
+                              : productionCompanies
+                            ).length
+                          : 5
+                      )
+                      .map((network) => (
+                        <Button
+                          variant={
+                            selectedNetwork.has(network.id)
+                              ? "destructive"
+                              : "secondary"
+                          }
+                          className="flex-1"
+                          key={network.id}
+                          size="xl"
+                          disabled={selectedMedia === "all"}
+                          onClick={() => toggleNetwork(network.id)}
+                        >
+                          {network.name}
+                        </Button>
+                      ))}
+                    <Button
+                      onClick={() => setExpandCompanies((prev) => !prev)}
+                      size="icon-lg"
+                      variant="secondary"
+                    >
+                      {expandCompanies ? <Minus /> : <Plus />}
+                    </Button>
+                  </div>
+                </div>
                 <div className="p-4 space-y-3">
-                  <h1 className="font-medium flex gap-3 items-end justify-between">
-                    Languages
+                  <h1 className="font-medium ">
+                    Languages{" "}
+                    <span className="text-red-500">
+                      {!selectedLanguage ? "" : `(1)`}
+                    </span>
                   </h1>
                   <div className="flex flex-wrap gap-2">
                     {languages
-                      .slice(0, expandLanguage ? languages.length : 14)
+                      .slice(0, expandLanguage ? languages.length : 7)
                       .map((lang) => (
                         <Button
                           key={lang.code}
@@ -560,7 +653,7 @@ export default function Discover() {
                       ))}
                     <Button
                       variant="secondary"
-                      size="xl"
+                      size="icon-lg"
                       onClick={() => setExpandLanguage((prev) => !prev)}
                     >
                       {expandLanguage ? <Minus /> : <Plus />}
@@ -568,45 +661,18 @@ export default function Discover() {
                   </div>
                 </div>
 
-                <div className=" p-4 space-y-3">
-                  <h1 className="font-medium">Keywords</h1>
-                  <div className="flex flex-wrap gap-2">
-                    {keywordTopics
-                      .slice(0, expandKeyword ? keywordTopics.length : 12)
-                      .map((meow) => (
-                        <Button
-                          variant={
-                            selectedKeywords.has(meow.value)
-                              ? "destructive"
-                              : "secondary"
-                          }
-                          className="flex-1"
-                          key={meow.value}
-                          size="xl"
-                          onClick={() => toggleKeywords(meow.value)}
-                          disabled={selectedMedia === "all"}
-                        >
-                          {meow.label}
-                        </Button>
-                      ))}
-                    <Button
-                      variant="secondary"
-                      size="xl"
-                      onClick={() => setExpandKeyword((prev) => !prev)}
-                    >
-                      {expandKeyword ? <Minus /> : <Plus />}
-                    </Button>
-                  </div>
-                </div>
                 {/* <DrawerFooter>
                   <Button>Reset</Button>
                 </DrawerFooter> */}
               </DrawerContent>
             </Drawer>
-            <Button variant="secondary" size="xl">
-              <IconRefresh />
-              Reset Filter
-            </Button>
+
+            {!isTrending && (
+              <Button variant="secondary" size="xl" onClick={resetFilter}>
+                <IconRefresh />
+                Reset Filter
+              </Button>
+            )}
           </div>
         </EmptyContent>
       </Empty>
@@ -617,8 +683,10 @@ export default function Discover() {
           Select Filter
         </Button>
       </div> */}
-
-      <div className="grid grid-cols-7 gap-4">
+      <h1 className="sectionName uppercase">
+        {selectedGenres.size === 0 ? "DISCOVER" : selectedGenreLabel}
+      </h1>
+      <div className="grid lg:grid-cols-7 md:grid-cols-5 sm:grid-cols-4 grid-cols-3 lg:gap-4 gap-2">
         {query.data?.results.map((meow) => (
           <MovieCard key={meow.id} movie={meow} media_type="movie" />
         ))}
@@ -651,7 +719,7 @@ function CommandComponent({
     <Popover modal={true} open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className="flex-1">
         <Button
-          variant="secondary"
+          variant={!value ? "secondary" : "destructive"}
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"

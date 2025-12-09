@@ -81,6 +81,32 @@ export default function ReusableSwiper({
           slidesPerGroup={7}
           slidesPerView={7}
           modules={[Navigation, Pagination, Keyboard, Scrollbar]}
+          breakpoints={{
+            0: {
+              slidesPerView: 3,
+              spaceBetween: 10,
+            },
+            640: {
+              slidesPerView: 4,
+              spaceBetween: 12,
+            },
+            768: {
+              slidesPerView: 5,
+              spaceBetween: 15,
+            },
+            1024: {
+              slidesPerView: 5,
+              spaceBetween: 20,
+            },
+            1140: {
+              slidesPerView: 6,
+              spaceBetween: 20,
+            },
+            1280: {
+              slidesPerView: 7,
+              spaceBetween: 20,
+            },
+          }}
         >
           {filtered.map((movie, i) => (
             <SwiperSlide key={movie.id} className="p-1">

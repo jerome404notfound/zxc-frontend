@@ -4,51 +4,50 @@ import { useState } from "react";
 import Movie from "./movie";
 import TvShow from "./tv";
 import { Separator } from "@/components/ui/separator";
-import { Film, Sword, Swords, Telescope, Tv } from "lucide-react";
+import { Film, LucideIcon, Sword, Swords, Telescope, Tv } from "lucide-react";
 import Discover from "./discover";
 import Anime from "./anime";
-
+interface NavItemProps {
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+  onClick: () => void;
+}
 export default function ContentState() {
   const [open, setOpen] = useState<"movie" | "tv" | "anime" | "discover">(
     "movie"
   );
   return (
-    <div className="w-[90%] mx-auto">
-      <div className="flex justify-center items-center w-full py-8 gap-12 text-lg tracking-wide">
-        <span
+    <div className="lg:w-[90%] w-[98%] mx-auto">
+      <div className="flex justify-center items-center w-full lg:py-8 py-4 lg:gap-12 gap-6  tracking-wide overflow-auto">
+        <NavItem
+          label="Movie"
+          icon={Film}
+          active={open === "movie"}
           onClick={() => setOpen("movie")}
-          className={`cursor-pointer flex items-center gap-2 active:scale-95 hover:scale-105 transition duration-50 ${
-            open === "movie" ? "font-medium" : "text-muted-foreground"
-          }`}
-        >
-          <Film className="size-5" /> Movie
-        </span>
-        <span
-          onClick={() => setOpen("tv")}
-          className={`cursor-pointer  flex items-center gap-2 active:scale-95 hover:scale-105 transition duration-50 ${
-            open === "tv" ? "font-medium" : "text-muted-foreground"
-          }`}
-        >
-          <Tv className="size-5" /> TV Show
-        </span>
-        <span
-          onClick={() => setOpen("anime")}
-          className={`cursor-pointer  flex items-center gap-2 active:scale-95 hover:scale-105 transition duration-50 ${
-            open === "anime" ? "font-medium" : "text-muted-foreground"
-          }`}
-        >
-          <Swords className="size-5" /> Anime
-        </span>
+        />
 
-        <span
+        <NavItem
+          label="TV Show"
+          icon={Tv}
+          active={open === "tv"}
+          onClick={() => setOpen("tv")}
+        />
+
+        <NavItem
+          label="Anime"
+          icon={Swords}
+          active={open === "anime"}
+          onClick={() => setOpen("anime")}
+        />
+
+        <NavItem
+          label="Discover"
+          icon={Telescope}
+          active={open === "discover"}
           onClick={() => setOpen("discover")}
-          className={`cursor-pointer  flex items-center gap-2 active:scale-95 hover:scale-105 transition duration-50 ${
-            open === "discover" ? "font-medium" : "text-muted-foreground"
-          }`}
-        >
-          <Telescope className="size-5" /> Discover
-        </span>
-        <Separator className="flex-1" />
+        />
+        <Separator className="flex-1 bg-linear-to-r from-border to-transparent" />
       </div>
       {/* {open === "movie" && <Movie />} {open === "tv" && <TvShow />}{" "}
       {open === "discover" && <Discover />} */}
@@ -68,3 +67,14 @@ export default function ContentState() {
     </div>
   );
 }
+const NavItem = ({ label, icon: Icon, active, onClick }: NavItemProps) => (
+  <span
+    onClick={onClick}
+    className={`cursor-pointer flex items-center gap-2 
+      active:scale-95 hover:scale-105 transition duration-50 lg:text-lg text-sm whitespace-nowrap
+      ${active ? "font-medium" : "text-muted-foreground"}`}
+  >
+    <Icon className="size-5" />
+    {label}
+  </span>
+);
