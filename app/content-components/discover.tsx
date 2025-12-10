@@ -8,6 +8,7 @@ import {
   IconGhost2Filled,
   IconLoader,
   IconMovie,
+  IconMovieOff,
   IconRefresh,
   IconReload,
   IconTransfer,
@@ -266,7 +267,7 @@ export default function Discover() {
     }
   }, [inView, hasNextPage, fetchNextPage]);
   return (
-    <div className="py-20  space-y-12 ">
+    <div className="py-20 ">
       <Empty className="">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -709,30 +710,47 @@ export default function Discover() {
       {/* <h1 className="sectionName uppercase">
         {selectedGenres.size === 0 ? "DISCOVER" : selectedGenreLabel}
       </h1> */}
-      <h1 className=" uppercase  mask-[linear-gradient(to_bottom,black_0%,transparent_85%)] lg:text-7xl text-6xl font-bold text-red-700  translate-y-15 font-sans tracking-tighter">
+      <h1 className=" uppercase  mask-[linear-gradient(to_bottom,black_0%,transparent_85%)] lg:text-7xl text-6xl font-bold text-red-700  translate-y-3 tracking-tighter">
         {selectedGenres.size === 0 ? "DISCOVER" : selectedGenreLabel}
       </h1>
       <div className="grid lg:grid-cols-7 md:grid-cols-5 sm:grid-cols-4 grid-cols-3 lg:gap-4 gap-2">
-        {data?.pages.map((page) =>
-          page.results.map((meow) => (
-            <MovieCard
-              key={meow.id}
-              movie={meow}
-              media_type={isTrending ? meow.media_type : selectedMedia}
-            />
-          ))
+        {data?.pages.map((page, idx) =>
+          page.results.length === 0 ? (
+            <div
+              key={`empty-${idx}`}
+              className="col-span-7 flex flex-col justify-center items-center gap-4 py-20"
+            >
+              <span className="bg-popover p-2 rounded-md">
+                <IconMovieOff className="size-10" />
+              </span>
+              <div className="text-center">
+                <h1 className="text-lg font-medium"> No data found.</h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  Try another filter combination.
+                </p>
+              </div>
+            </div>
+          ) : (
+            page.results.map((meow) => (
+              <MovieCard
+                key={meow.id}
+                movie={meow}
+                media_type={isTrending ? meow.media_type : selectedMedia}
+              />
+            ))
+          )
         )}
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="">
-            <Skeleton className="aspect-2/3" />
-            <div className="mt-3 space-y-1">
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-3 w-1/3" />
+        {[...Array(7)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-3">
+            <Skeleton className="flex-10" /> {/* biggest */}
+            <div className="flex-1 flex flex-col gap-1">
+              <Skeleton className="flex-1 w-1/2" /> {/* smaller */}
+              <Skeleton className="flex-[0.8] w-1/3" /> {/* smaller */}
             </div>
           </div>
         ))}
         {isFetchingNextPage &&
-          [...Array(3)].map((_, i) => (
+          [...Array(7)].map((_, i) => (
             <div key={i} className="">
               <Skeleton className="aspect-2/3" />
               <div className="mt-3 space-y-1">
@@ -743,9 +761,12 @@ export default function Discover() {
           ))}
       </div>
       <div ref={ref} className="grid place-items-center">
-        <p className="flex gap-2 animate-pulse text-muted-foreground">
-          fetching data... <IconLoader className="animate-spin" />
-        </p>
+        {isFetchingNextPage && (
+          <p className="flex gap-2 animate-pulse text-muted-foreground">
+            fetching data...
+            <IconLoader className="animate-spin" />
+          </p>
+        )}
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import CircularProgress from "./circular-progress";
 import { Waveform } from "ldrs/react";
 import "ldrs/react/Waveform.css";
+import TitleReusable from "@/components/ui/title";
+import Link from "next/link";
 export default function Episodes({ id }: { id: number }) {
   const { getSeasonSelect } = useSeasonStore();
   const { activateSpoiler, setActivateSpoiler } = useSpoilerStore();
@@ -21,61 +23,34 @@ export default function Episodes({ id }: { id: number }) {
   const loading = query.isLoading;
   return (
     <div className="space-y-3 ">
-      <div className="flex items-end justify-between">
-        <div>
-          {/* <motion.span
-            className="bg-[linear-gradient(110deg,#404040,35%,#fff,50%,#404040,75%,#404040)] bg-[length:200%_100%] bg-clip-text dark:text-primary/70 text-green-500/70 
-  text-4xl   tracking-[-4px] py-5    drop-shadow-[1px_1px_3px_rgba(0,0,0,0.3)]
-  "
-            initial={{ backgroundPosition: "200% 0", opacity: 0, y: 20 }}
-            animate={{ backgroundPosition: "-200% 0", opacity: 1, y: 0 }}
-            transition={{
-              backgroundPosition: {
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "loop",
-                duration: 7,
-                ease: "linear",
-              },
-              opacity: { duration: 0.4, delay: 1.1 },
-              y: { duration: 0.4, delay: 1.1 },
-            }}
-          >
-            Episodes
-          </motion.span> */}
-          <p className="text-muted-foreground">
-            {savedSeason?.name}, {episodes.length} episodes
-          </p>
-        </div>
+      <TitleReusable
+        title={`${savedSeason?.name} Episodes`}
+        description={`${episodes.length} episodes`}
+      />
+      <div className="flex items-end justify-end">
+        <Button
+          variant="ghost"
+          onClick={() => setActivateSpoiler(!activateSpoiler)}
+        >
+          {activateSpoiler ? (
+            <>
+              <EyeOff className="w-4 h-4" />
+              <span className="text-sm font-medium">Hide Spoilers</span>
+            </>
+          ) : (
+            <>
+              <Eye className="w-4 h-4" />
+              <span className="text-sm font-medium">Show Spoilers</span>
+            </>
+          )}
+        </Button>
 
-        {/* Spoiler Toggle */}
-        <div className="flex  gap-3 items-center">
-          <Button
-            variant="ghost"
-            onClick={() => setActivateSpoiler(!activateSpoiler)}
-          >
-            {activateSpoiler ? (
-              <>
-                <EyeOff className="w-4 h-4" />
-                <span className="text-sm font-medium">Hide Spoilers</span>
-              </>
-            ) : (
-              <>
-                <Eye className="w-4 h-4" />
-                <span className="text-sm font-medium">Show Spoilers</span>
-              </>
-            )}
-          </Button>
-
-          <div className="inline-flex items-center gap-2">
-            <Switch id="auto-hide" className="rounded-sm [&_span]:rounded" />
-            <label
-              htmlFor="auto-hide"
-              className="text-sm text-muted-foreground"
-            >
-              Auto hide
-            </label>
-          </div>
-        </div>
+        {/* <div className="inline-flex items-center gap-2">
+          <Switch id="auto-hide" className="rounded-sm [&_span]:rounded" />
+          <label htmlFor="auto-hide" className="text-sm text-muted-foreground">
+            Auto hide
+          </label>
+        </div> */}
       </div>
 
       {loading ? (
@@ -99,7 +74,11 @@ export default function Episodes({ id }: { id: number }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {episodes.slice(0, seemore ? episodes.length : 6).map((episode) => (
-            <div key={episode.id} className="group cursor-pointer">
+            <Link
+              key={episode.id}
+              className="group"
+              href={`/watch/tv/${id}/${season_number}/${episode.episode_number}`}
+            >
               {/* Image */}
               <div className="relative aspect-video mb-3 bg-neutral-900 rounded overflow-hidden">
                 {episode.still_path ? (
@@ -167,7 +146,7 @@ export default function Episodes({ id }: { id: number }) {
                   </p>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

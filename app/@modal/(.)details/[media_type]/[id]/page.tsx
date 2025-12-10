@@ -83,6 +83,12 @@ export default function Modal() {
 
   const data = query.data ?? null;
   const loading = query.isLoading;
+  const [expanded, setExpanded] = useState(false);
+  const truncated = data?.overview
+    .slice(0, 168)
+    .split(" ")
+    .slice(0, -1)
+    .join(" ");
   //Seasons
   const { setSeasonSelect, getSeasonSelect } = useSeasonStore();
   const saved = getSeasonSelect(id);
@@ -124,7 +130,7 @@ export default function Modal() {
       open={open}
       onOpenChange={(value) => handleCloseDrawer(value)}
     >
-      <DrawerContent className=" outline-none ">
+      <DrawerContent className=" outline-none p-1">
         <DrawerHeader className="sr-only">
           <DrawerTitle></DrawerTitle>
           <DrawerDescription></DrawerDescription>
@@ -142,7 +148,7 @@ export default function Modal() {
             </div>
           </div>
         ) : (
-          <div className="relative bg-background z-60 overflow-auto custom-scrollbar">
+          <div className="relative bg-background z-60 overflow-auto custom-scrollbar rounded-t-md">
             <div className="absolute inset-0 max-h-[60dvh] overflow-hidden">
               <div
                 id={`yt-player-${trailerKey}`}
@@ -164,7 +170,7 @@ export default function Modal() {
               )}
 
               <div className="absolute inset-0 bottom-0 bg-linear-to-t from-background via-transparent to-background/90" />
-              <div className="absolute inset-0 bottom-0 bg-linear-to-tl from-background/70 via-transparent  to-background/70" />
+              <div className="absolute inset-0 bottom-0 bg-linear-to-tl from-background/20 via-transparent  to-background/30" />
               <div className="absolute inset-0 bottom-0 bg-linear-to-tr from-background via-transparent  to-transparent" />
               {data?.genres && (
                 <div className="absolute top-8 lg:left-8 left-2 flex lg:gap-6 gap-3 items-center">
@@ -323,14 +329,38 @@ export default function Modal() {
                   </div>
                 </div>
                 {data?.overview && (
-                  <p className="lg:text-base text-sm leading-loose text-muted-foreground lg:max-w-2xl">
-                    {data.overview}
+                  <p
+                    className={`lg:text-base text-sm leading-loose text-muted-foreground lg:max-w-2xl`}
+                  >
+                    {expanded ? (
+                      <>
+                        {data.overview}{" "}
+                        <span
+                          className="text-red-500 hover:underline"
+                          onClick={() => setExpanded(false)}
+                        >
+                          see less
+                        </span>
+                      </>
+                    ) : data.overview.length > 200 ? (
+                      <>
+                        {truncated}{" "}
+                        <span
+                          className="text-red-500 hover:underline"
+                          onClick={() => setExpanded(true)}
+                        >
+                          ...see more
+                        </span>
+                      </>
+                    ) : (
+                      data.overview
+                    )}
                   </p>
                 )}
               </div>
               {credits && <Credits credits={credits} />}
               {data && media_type === "tv" && (
-                <div className="space-y-6" ref={episodesRef}>
+                <div className="space-y-20" ref={episodesRef}>
                   <SeasonSelectorPoster seasons={filtered} id={id} />
                   <Episodes id={id} />
                 </div>

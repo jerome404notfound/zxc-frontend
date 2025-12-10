@@ -31,19 +31,14 @@ export default function Credits({ credits }: { credits: CastMemberTypes[] }) {
               </AvatarFallback>
             </Avatar>
             <p className="text-center text-sm text-muted-foreground">
-              {meow.name.split(" ")[0]} as <br />
-              <strong>{meow.character.split(" ")[0]}</strong>
+              {meow.name.split(" ")[0]}
             </p>
           </div>
         ))}
 
         {remaining > 0 && (
-          <div className="*:data-[slot=avatar]:ring-background *:data-[slot=avatar]:ring-3 items-center">
-            <Avatar className="lg:size-25 size-15">
-              <AvatarFallback className="uppercase lg:text-base text-sm">
-                +{remaining}
-              </AvatarFallback>
-            </Avatar>
+          <div className="grid place-items-center p-2 text-xl font-semibold text-red-500">
+            +{remaining}
           </div>
         )}
       </div>
