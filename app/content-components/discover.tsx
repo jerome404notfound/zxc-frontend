@@ -6,8 +6,10 @@ import {
   IconFlameFilled,
   IconFolderCode,
   IconGhost2Filled,
+  IconLoader,
   IconMovie,
   IconRefresh,
+  IconReload,
   IconTransfer,
   IconTransferVertical,
 } from "@tabler/icons-react";
@@ -54,7 +56,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import useGetReusableData from "@/api/get-reusable-data";
 import { ApiTypes } from "@/types/api-types";
 import MovieCard from "../movie-card";
 import {
@@ -68,7 +69,14 @@ import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import TitleReusable from "@/components/ui/title";
+import useGetDiscoverInfinite from "@/api/get-discover-infinite";
+import { MovieTypes } from "@/types/movie-by-id";
+import { useInView } from "react-intersection-observer";
+import { Skeleton } from "@/components/ui/skeleton";
 export default function Discover() {
+  const { ref, inView } = useInView({
+    threshold: 0.5, // triggers when 50% visible
+  });
   const [selectedMedia, setSelectedMedia] = useState<"all" | "movie" | "tv">(
     "all"
   );
@@ -134,62 +142,63 @@ export default function Discover() {
     !maxRating &&
     !selectedLanguage &&
     selectedKeywords.size === 0;
-  const query = useGetReusableData<ApiTypes>({
-    endpoint: isTrending
-      ? `trending/${selectedMedia}/day`
-      : `discover/${selectedMedia}`,
-    params: {
-      page: 1,
-      sort_by: "popularity.desc",
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetDiscoverInfinite<MovieTypes>({
+      endpoint: isTrending
+        ? `trending/${selectedMedia}/day`
+        : `discover/${selectedMedia}`,
+      params: {
+        // page: 1,
+        sort_by: "popularity.desc",
 
-      ...(selectedGenres.size > 0 && {
-        with_genres: [...selectedGenres].join(","),
-      }),
+        ...(selectedGenres.size > 0 && {
+          with_genres: [...selectedGenres].join(","),
+        }),
 
-      ...(!yearType &&
-        selectedYear != null &&
-        (selectedMedia === "tv"
-          ? {
-              "first_air_date.gte": `${selectedYear}-01-01`,
-              "first_air_date.lte": `${selectedYear}-12-31`,
-            }
-          : {
-              "primary_release_date.gte": `${selectedYear}-01-01`,
-              "primary_release_date.lte": `${selectedYear}-12-31`,
-            })),
+        ...(!yearType &&
+          selectedYear != null &&
+          (selectedMedia === "tv"
+            ? {
+                "first_air_date.gte": `${selectedYear}-01-01`,
+                "first_air_date.lte": `${selectedYear}-12-31`,
+              }
+            : {
+                "primary_release_date.gte": `${selectedYear}-01-01`,
+                "primary_release_date.lte": `${selectedYear}-12-31`,
+              })),
 
-      ...(yearType === true &&
-        toValue != null &&
-        (selectedMedia === "tv"
-          ? { "first_air_date.gte": `${toValue}-01-01` }
-          : { "primary_release_date.gte": `${toValue}-01-01` })),
+        ...(yearType === true &&
+          toValue != null &&
+          (selectedMedia === "tv"
+            ? { "first_air_date.gte": `${toValue}-01-01` }
+            : { "primary_release_date.gte": `${toValue}-01-01` })),
 
-      ...(yearType === true &&
-        fromValue != null &&
-        (selectedMedia === "tv"
-          ? { "first_air_date.lte": `${fromValue}-12-31` }
-          : { "primary_release_date.lte": `${fromValue}-12-31` })),
+        ...(yearType === true &&
+          fromValue != null &&
+          (selectedMedia === "tv"
+            ? { "first_air_date.lte": `${fromValue}-12-31` }
+            : { "primary_release_date.lte": `${fromValue}-12-31` })),
 
-      ...(minRating != null && {
-        "vote_average.gte": minRating,
-      }),
+        ...(minRating != null && {
+          "vote_average.gte": minRating,
+        }),
 
-      ...(maxRating != null && {
-        "vote_average.lte": maxRating,
-      }),
+        ...(maxRating != null && {
+          "vote_average.lte": maxRating,
+        }),
 
-      ...(selectedNetwork.size > 0 &&
-        (selectedMedia === "tv"
-          ? { with_networks: [...selectedNetwork].join(",") }
-          : { with_companies: [...selectedNetwork].join(",") })),
+        ...(selectedNetwork.size > 0 &&
+          (selectedMedia === "tv"
+            ? { with_networks: [...selectedNetwork].join(",") }
+            : { with_companies: [...selectedNetwork].join(",") })),
 
-      ...(selectedLanguage && { with_original_language: selectedLanguage }),
-      ...(selectedSort && { sort_by: selectedSort }),
-      ...(selectedKeywords.size > 0 && {
-        with_keywords: [...selectedKeywords].join(","),
-      }),
-    },
-  });
+        ...(selectedLanguage && { with_original_language: selectedLanguage }),
+        ...(selectedSort && { sort_by: selectedSort }),
+        ...(selectedKeywords.size > 0 && {
+          with_keywords: [...selectedKeywords].join(","),
+        }),
+      },
+    });
 
   useEffect(() => {
     setSelectedGenres(new Set());
@@ -250,6 +259,12 @@ export default function Discover() {
     .filter((genre) => selectedGenres.has(genre.id))
     .map((g) => g.name)
     .join(", ");
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
   return (
     <div className="py-20  space-y-12 ">
       <Empty className="">
@@ -698,9 +713,39 @@ export default function Discover() {
         {selectedGenres.size === 0 ? "DISCOVER" : selectedGenreLabel}
       </h1>
       <div className="grid lg:grid-cols-7 md:grid-cols-5 sm:grid-cols-4 grid-cols-3 lg:gap-4 gap-2">
-        {query.data?.results.map((meow) => (
-          <MovieCard key={meow.id} movie={meow} media_type="movie" />
+        {data?.pages.map((page) =>
+          page.results.map((meow) => (
+            <MovieCard
+              key={meow.id}
+              movie={meow}
+              media_type={isTrending ? meow.media_type : selectedMedia}
+            />
+          ))
+        )}
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="">
+            <Skeleton className="aspect-2/3" />
+            <div className="mt-3 space-y-1">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-3 w-1/3" />
+            </div>
+          </div>
         ))}
+        {isFetchingNextPage &&
+          [...Array(3)].map((_, i) => (
+            <div key={i} className="">
+              <Skeleton className="aspect-2/3" />
+              <div className="mt-3 space-y-1">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-3 w-1/3" />
+              </div>
+            </div>
+          ))}
+      </div>
+      <div ref={ref} className="grid place-items-center">
+        <p className="flex gap-2 animate-pulse text-muted-foreground">
+          fetching data... <IconLoader className="animate-spin" />
+        </p>
       </div>
     </div>
   );
