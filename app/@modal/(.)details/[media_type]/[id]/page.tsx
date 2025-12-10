@@ -358,7 +358,7 @@ export default function Modal() {
                   </p>
                 )}
               </div>
-              {credits && <Credits credits={credits} />}
+              {credits && credits.length > 0 && <Credits credits={credits} />}
               {data && media_type === "tv" && (
                 <div className="space-y-20" ref={episodesRef}>
                   <SeasonSelectorPoster seasons={filtered} id={id} />

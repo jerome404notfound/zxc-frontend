@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEscape } from "@/lib/useEscape";
 import { useDebounce } from "@/lib/debounder";
 import SpotlightBorderWrapper from "@/components/ui/border";
+import ChangeLogs from "../changelogs";
 export default function SearchModal() {
   const [open, setOpen] = useState(false);
   useEscape(() => setOpen((prev) => !prev));
@@ -63,7 +64,7 @@ export default function SearchModal() {
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
         style={{ willChange: "opacity, transform" }}
-        className="fixed top-8 right-24 border p-0.5 rounded-lg flex items-center gap-3 z-10 "
+        className="fixed top-7.5 left-1/2 -translate-x-1/2 border p-0.5 rounded-lg flex items-center gap-3 z-10 "
       >
         <SpotlightBorderWrapper>
           <Input
@@ -75,6 +76,7 @@ export default function SearchModal() {
             onChange={handleSearch}
           />
         </SpotlightBorderWrapper>
+        <ChangeLogs />
         <span className="absolute left-2 flex items-center border-r pl-2 pr-3">
           <Search className="size-4 opacity-50" />
         </span>

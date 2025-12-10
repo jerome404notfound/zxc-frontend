@@ -40,7 +40,7 @@ export default function SeasonSelectorPoster({
         }}
         // slidesPerGroup={5}
         data-vaul-no-drag
-        slidesPerView={5}
+        slidesPerView={6}
         initialSlide={initialIndex}
         modules={[Navigation, Pagination, Keyboard, Scrollbar]}
       >
@@ -75,18 +75,25 @@ export default function SeasonSelectorPoster({
                         {season.name}
                       </div>
                     </div> */}
-                    {season.poster_path && (
+
+                    {season.poster_path ? (
                       <img
                         src={`${IMAGE_BASE_URL}/w780${season.poster_path}`}
                         alt={season.name}
                         className="w-full h-full object-cover"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-5xl font-bold text-neutral-800">
+                          {season.season_number}
+                        </span>
+                      </div>
                     )}
                     {!isSelected && (
                       <div className="absolute inset-0 bg-background/50 "></div>
                     )}
                     {isSelected && (
-                      <div className="absolute inset-0 bg-linear-to-b to-red-800/40 from-transparent rounded-md animate-pulse"></div>
+                      <div className="absolute inset-0 bg-linear-to-b to-red-800/40 via-transparent from-transparent rounded-md animate-pulse"></div>
                     )}
                   </div>
                 </div>
