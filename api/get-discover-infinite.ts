@@ -3,8 +3,9 @@ import axios from "axios";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 export interface ReusableSwiperTypes {
   endpoint: string;
-  params?: Record<string, string | number>;
+  params?: Record<string, string | number | null>;
   isVisible?: boolean;
+  enable?: boolean;
 }
 interface TMDBResponse<T> {
   page: number;
@@ -16,10 +17,11 @@ export default function useGetDiscoverInfinite<T>({
   endpoint,
   params,
   isVisible,
+  enable,
 }: ReusableSwiperTypes) {
   return useInfiniteQuery<TMDBResponse<T>>({
-    queryKey: ["reusable_infinite", endpoint, params],
-    enabled: isVisible,
+    queryKey: ["reusable_infinite", endpoint, params, enable],
+    enabled: isVisible || enable,
     initialPageParam: 1,
     queryFn: async ({ pageParam = 1 }) => {
       const res = await axios.get(`https://api.themoviedb.org/3/${endpoint}`, {

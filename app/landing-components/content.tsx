@@ -121,7 +121,6 @@ export default function LandingContent({
       {/* <span className="absolute bottom-10 left-1/2 z-10 h-9 w-6 -translate-x-1/2 rounded-full border border-foreground/80 flex items-start justify-center pt-1 animate-bounce opacity-80 shadow-md">
         <span className="h-2.5 w-px bg-foreground  border-foreground/80 rounded-full"></span>
       </span> */}
-      <img className="absolute top-7 left-24 size-10" src={logo.src} alt="" />
     </motion.div>
   );
 }

@@ -6,7 +6,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -24,10 +23,15 @@ import {
   IconBrandDiscord,
   IconBrandFacebook,
   IconBrandTelegram,
-  IconVersions,
 } from "@tabler/icons-react";
 import Link from "next/link";
-export default function ChangeLogs() {
+export default function ChangeLogs({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}) {
   const versions = [
     {
       id: 4,
@@ -60,12 +64,7 @@ export default function ChangeLogs() {
   ];
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <IconVersions />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-2xl m-auto h-fit  px-6 pt-6 rounded-lg space-y-6 bg-card">
         <DialogHeader>
           <DialogTitle>Changelogs</DialogTitle>

@@ -3,18 +3,18 @@
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Badge } from "./badge";
+import { MovieTypes } from "@/types/movie-by-id";
 
-interface Tab {
-  id: string;
-  label: string;
-  indicator: number | null;
-}
+// interface Tab {
+//   id: string;
+//   label: string;
+//   indicator: number | null;
+// }
 
 interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-  tabs: Tab[];
-  activeTab?: string;
-  onTabChange?: (tabId: string) => void;
+  tabs: MovieTypes[];
+  activeTab?: number;
+  onTabChange?: (tabId: number) => void;
 }
 
 const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
@@ -117,13 +117,13 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                   onTabChange?.(tab.id);
                 }}
               >
-                <div className="text-base font-medium leading-5 whitespace-nowrap flex items-center justify-center h-full gap-1.5">
-                  {tab.label}
-                  {tab.indicator !== null && (
+                <div className="text-base font-medium leading-5 whitespace-nowrap flex items-center justify-center capitalize h-full gap-1.5">
+                  {tab.name}
+                  {/* {tab.indicator !== null && (
                     <span className="text-sm">
                       / {tab.indicator > 9999 ? "9999+" : tab.indicator}
                     </span>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))}

@@ -24,9 +24,14 @@ export interface MovieTypes {
   vote_count: number;
   popularity: number;
   external_ids: ExternalIdsTypes;
+  label: string
 }
 interface ExternalIdsTypes {
   imdb_id: string;
+}
+export interface KeywordTypes {
+  name: string;
+  label: string;
 }
 export interface Season {
   air_date: string | null;

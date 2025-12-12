@@ -7,6 +7,7 @@ import SearchModal from "./search-components/search-modal";
 import { AnimatePresence, motion } from "framer-motion";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import Link from "next/link";
+import Header from "./header";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -14,7 +15,7 @@ export default function Home() {
   const isSearching = Boolean(query);
   return (
     <div>
-      <SearchModal />
+      <Header />
       <LandingPage />
 
       <AnimatePresence mode="wait">

@@ -3,16 +3,21 @@ import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { Tabs } from "@/components/ui/vercel-tabs";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Waveform } from "ldrs/react";
-import "ldrs/react/Waveform.css";
-import { TextSearch } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import MovieCard from "../movie-card";
-import { motion } from "framer-motion";
+import { MovieTypes } from "@/types/movie-by-id";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import useGetDiscoverInfinite from "@/api/get-discover-infinite";
+
 export default function SearchResult() {
   const searchParams = useSearchParams();
-  const search = searchParams.get("query") ?? "";
-  const [tab, setTab] = useState("movie");
+  const urlQuery = searchParams.get("query") ?? "";
+  const type = searchParams.get("type") ?? "movie";
+  const [tab, setTab] = useState<number | null>(null);
+  const [query, setQuery] = useState("");
+  useEffect(() => {
+    setQuery(urlQuery);
+  }, [urlQuery]);
   const {
     data,
     fetchNextPage,
@@ -20,119 +25,56 @@ export default function SearchResult() {
     isLoading,
     isFetchingNextPage,
     isPending,
-  } = useSearch({ search, media_type: tab });
-  const { ref, inView } = useInView({
-    threshold: 1,
-    rootMargin: "200px",
-  });
-  useEffect(() => {
-    if (inView && hasNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, fetchNextPage]);
-  const allResults = useMemo(
-    () =>
-      data?.pages.flatMap((p) =>
-        p.results.filter(
-          (m) =>
-            m.poster_path &&
-            m.backdrop_path &&
-            m.vote_average > 1 &&
-            m.vote_count > 10 &&
-            m.overview &&
-            m.popularity > 5
-        )
-      ) ?? [],
-    [data]
-  );
+  } = useSearch<MovieTypes>({ query, media_type: type });
 
-  const total = useMemo(
-    () => data?.pages[0]?.total_results ?? 0,
-    [data?.pages]
-  );
-  const tabs = useMemo(
-    () => [
-      {
-        id: "movie",
-        label: "Movie",
-        indicator: tab === "movie" ? total : null,
-      },
-      { id: "tv", label: "TV Show", indicator: tab === "tv" ? total : null },
-      {
-        id: "person",
-        label: "People",
-        indicator: tab === "person" ? total : null,
-      },
-      {
-        id: "collection",
-        label: "Collection",
-        indicator: tab === "collection" ? total : null,
-      },
-      {
-        id: "company",
-        label: "Company",
-        indicator: tab === "company" ? total : null,
-      },
-      {
-        id: "keyword",
-        label: "Keyword",
-        indicator: tab === "keyword" ? total : null,
-      },
-      {
-        id: "network",
-        label: "Network",
-        indicator: tab === "network" ? total : null,
-      },
-    ],
-    [tab, total]
-  );
+  const {
+    data: data_discover,
+    fetchNextPage: fetchNextPage_discover,
+    hasNextPage: hasNextPage_discover,
+    isFetchingNextPage: isFetchingNextPage_discover,
+  } = useGetDiscoverInfinite<MovieTypes>({
+    endpoint: `discover/movie`,
+    params: {
+      sort_by: "popularity.desc",
+      with_keywords: tab,
+    },
+    enable: tab !== null,
+  });
+
+  const results = data?.pages.flatMap((p) => p.results) ?? [];
+  const results_discover = data_discover?.pages.flatMap((p) => p.results) ?? [];
+
+  useEffect(() => {
+    setTab(null);
+  }, [query, type]);
+
+  useEffect(() => {
+    if (type === "keyword" && results.length > 0 && tab === null) {
+      setTab((prev) => prev ?? results[0].id);
+    }
+  }, [results, type, tab]);
   return (
     <div className="relative flex flex-col items-center min-h-[calc(100dvh-390px)] pt-30 max-w-[90%] mx-auto space-y-10 ">
-      <div className="pb-[4.5px] border-b w-full ">
-        <Tabs tabs={tabs} onTabChange={(tabId) => setTab(tabId)} />
-      </div>
-
-      {isLoading || isPending ? (
-        <div className=" flex-1 grid place-items-center">
-          <Waveform size="35" stroke="3.5" speed="1" color="white" />
-        </div>
-      ) : allResults.length === 0 ? (
-        <div className=" flex-1 grid place-items-center">
-          <div className="flex flex-col items-center gap-5">
-            <span className="p-3 bg-card border-2 rounded-full">
-              <TextSearch />
-            </span>
-            <div className="text-center">
-              <p className="">No data found</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Try another keyword.
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <motion.div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {allResults.map((movie, i) => (
-            <motion.div
-              key={`${movie.id}-${i}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: "easeOut",
-                delay: i * 0.03, // <-- stagger animation
-              }}
-            >
-              <MovieCard media_type={tab} movie={movie} />
-            </motion.div>
-          ))}
-        </motion.div>
+      {type === "keyword" && results.length !== 0 && (
+        <ScrollArea className="w-full h-10.5  overflow-x-auto">
+          <Tabs tabs={results} onTabChange={(tabId) => setTab(tabId)} />
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       )}
-      {/* Infinite Scroll Trigger */}
-      <div ref={ref} className="py-10 flex justify-center">
-        {isFetchingNextPage && (
-          <Waveform size="35" stroke="3.5" speed="1" color="white" />
-        )}
+      <div className="grid grid-cols-7 gap-4">
+        {type === "keyword"
+          ? results_discover.length !== 0 &&
+            results_discover.map((discover) => (
+              <MovieCard
+                key={discover.id}
+                movie={discover}
+                media_type="movie"
+              />
+            ))
+          : results.length !== 0 &&
+            results.map((result) => (
+              <MovieCard key={result.id} movie={result} media_type="movie" />
+            ))}
       </div>
       <ScrollToTop />
     </div>

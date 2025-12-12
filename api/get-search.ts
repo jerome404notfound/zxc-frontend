@@ -1,44 +1,46 @@
 "use client";
 import axios from "axios";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { MovieTypes } from "@/types/movie-by-id";
-
-
-interface SearchTypes {
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useDebounce } from "@/lib/debounder";
+export interface ReusableSwiperTypes {
+  query: string;
+  media_type: string;
+}
+interface TMDBResponse<T> {
   page: number;
-  results: MovieTypes[];
   total_pages: number;
   total_results: number;
+  results: T[];
 }
-
-export default function useSearch({
+export default function useSearch<T>({
+  query,
   media_type,
-  search,
-}: {
-  media_type: string;
-  search: string;
-}) {
-  const query = useInfiniteQuery<SearchTypes>({
-    queryKey: ["search", search, media_type],
-
-    enabled: !!search,
+}: ReusableSwiperTypes) {
+  const debounced = useDebounce(query, 300);
+  return useInfiniteQuery<TMDBResponse<T>>({
+    queryKey: ["search_infinite", debounced, media_type],
     initialPageParam: 1,
     queryFn: async ({ pageParam = 1 }) => {
-      const url = `https://api.themoviedb.org/3/search/${media_type}?query=${search}&page=${pageParam}&api_key=${process.env.NEXT_PUBLIC_TMDB_KEY}&language=en-US`;
-      const res = await axios.get(url);
+      const res = await axios.get(
+        `https://api.themoviedb.org/3/search/${media_type}?query=${debounced}&page=${pageParam}&language=en-US`,
+        {
+          params: {
+            api_key: process.env.NEXT_PUBLIC_TMDB_KEY,
+            page: pageParam,
+          },
+        }
+      );
+
       return res.data;
     },
-
     getNextPageParam: (lastPage) => {
       if (lastPage.page < lastPage.total_pages) {
         return lastPage.page + 1;
       }
       return undefined;
     },
-
     retry: false,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
   });
-
-  return query;
 }
