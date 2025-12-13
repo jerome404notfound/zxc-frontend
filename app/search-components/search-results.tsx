@@ -71,7 +71,7 @@ export default function SearchResult() {
   const resultsLength = results.length === 0;
   const items = isKeyword ? results_discover : results;
   const filtered = items.filter(
-    (x) => x.poster_path && x.vote_average > 2 && x.vote_count >= 30
+    (x) => x.poster_path && x.vote_average > 1 && x.vote_count > 10
   );
   const isLoadingItems = isKeyword ? isLoading_discover : isLoading;
   const isFetchingMore = isKeyword

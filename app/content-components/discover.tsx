@@ -434,7 +434,7 @@ export default function Discover() {
                           expandGenre
                             ? (selectedMedia === "tv" ? tvGenres : movieGenres)
                                 .length
-                            : 7
+                            : 5
                         )
                         .map((genre) => (
                           <Button
@@ -472,7 +472,7 @@ export default function Discover() {
                     </h1>
                     <div className="flex flex-wrap gap-2">
                       {keywordTopics
-                        .slice(0, expandKeyword ? keywordTopics.length : 6)
+                        .slice(0, expandKeyword ? keywordTopics.length : 5)
                         .map((meow) => (
                           <Button
                             variant={
@@ -536,7 +536,7 @@ export default function Discover() {
                           { length: CURRENT_YEAR - 1999 + 1 },
                           (_, i) => 1999 + i
                         )
-                          .slice(expandYear ? 0 : 20)
+                          .slice(expandYear ? 0 : 21)
                           .map((year) => (
                             <Button
                               key={year}
@@ -615,7 +615,7 @@ export default function Discover() {
                                 ? tvNetworks
                                 : productionCompanies
                               ).length
-                            : 5
+                            : 4
                         )
                         .map((network) => (
                           <Button
@@ -651,7 +651,7 @@ export default function Discover() {
                     </h1>
                     <div className="flex flex-wrap gap-2">
                       {languages
-                        .slice(0, expandLanguage ? languages.length : 7)
+                        .slice(0, expandLanguage ? languages.length : 5)
                         .map((lang) => (
                           <Button
                             key={lang.code}

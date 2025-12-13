@@ -1,11 +1,9 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Check, Search } from "lucide-react";
-import { ChangeEvent, useEffect, useRef, useState, useTransition } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEscape } from "@/lib/useEscape";
-import { useDebounce } from "@/lib/debounder";
 import {
   Command,
   CommandEmpty,
@@ -19,18 +17,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import SpotlightBorderWrapper from "@/components/ui/border";
 import { Button } from "@/components/ui/button";
 import { IconCaretUpDown } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
-import { title } from "process";
 
 export default function SearchModal() {
   const [open, setOpen] = useState(false);
@@ -44,8 +35,6 @@ export default function SearchModal() {
   const [text, setText] = useState(query ?? "");
 
   const [value, setValue] = useState("movie");
-  // const typeDebounced = useDebounce(text, 300);
-  // const clearDebounced = useDebounce(text, 100);
   useEffect(() => {
     if (
       !pathname.startsWith("/search") &&
@@ -57,28 +46,6 @@ export default function SearchModal() {
     }
   }, [pathname]);
 
-  // useEffect(() => {
-  //   if (open) {
-  //     inputRef.current?.focus();
-  //   } else {
-  //     setText("");
-  //   }
-  // }, [open]);
-
-  // useEffect(() => {
-  //   // 1. User cleared input (fast)
-  //   if (clearDebounced.trim().length === 0) {
-  //     router.replace(lastPage, { scroll: false });
-  //     return;
-  //   }
-
-  //   // 2. User is typing (slow)
-  //   if (typeDebounced.trim().length > 0) {
-  //     router.replace(
-  //       `/search?type=${value}&query=${encodeURIComponent(typeDebounced)}`
-  //     );
-  //   }
-  // }, [typeDebounced, clearDebounced, lastPage, value]);
   useEffect(() => {
     if (text.trim().length === 0) {
       router.replace(lastPage, { scroll: false });
@@ -95,15 +62,22 @@ export default function SearchModal() {
       <span className="absolute left-2 flex items-center border-r pl-1 pr-2">
         <Search className="size-4 opacity-50" />
       </span>
-      <Input
-        ref={inputRef}
-        value={text}
-        type="search"
-        placeholder="Search ..."
-        onChange={handleSearch}
-        className="w-sm pr-28 pl-12"
-      />
-
+      <SpotlightBorderWrapper>
+        <Input
+          ref={inputRef}
+          value={text}
+          type="search"
+          placeholder={
+            value === "keyword"
+              ? `Search topic.. e.g. "Time Loop" `
+              : value === "movie"
+              ? "Search Movie..."
+              : "Search TV Shows..."
+          }
+          onChange={handleSearch}
+          className="w-sm pr-28 pl-12"
+        />
+      </SpotlightBorderWrapper>
       <div className="absolute top-0.5 right-0.5">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -127,7 +101,7 @@ export default function SearchModal() {
                       key={framework.value}
                       value={framework.value}
                       onSelect={(currentValue) => {
-                        setValue(currentValue === value ? "" : currentValue);
+                        setValue(currentValue);
                         setOpen(false);
                       }}
                     >
