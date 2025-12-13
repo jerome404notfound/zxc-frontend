@@ -92,7 +92,7 @@ export default function SearchModal() {
   };
   return (
     <div className="relative flex items-center">
-      <span className="absolute left-2 flex items-center border-r pl-2 pr-3">
+      <span className="absolute left-2 flex items-center border-r pl-1 pr-2">
         <Search className="size-4 opacity-50" />
       </span>
       <Input
@@ -101,7 +101,7 @@ export default function SearchModal() {
         type="search"
         placeholder="Search ..."
         onChange={handleSearch}
-        className="w-sm pr-28 pl-14"
+        className="w-sm pr-28 pl-12"
       />
 
       <div className="absolute top-0.5 right-0.5">
